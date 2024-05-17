@@ -1,13 +1,15 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // Initialize Three.js scene, camera, and renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
+const controls = new OrbitControls(camera, renderer.domElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-camera.position.z = 5;
-camera.position.y = 2.5;
+camera.position.set( 0, 1, 5 );
+controls.update();
 
 export class Player {
   constructor(geometry, material, position) {
@@ -50,5 +52,6 @@ export function addCanvas() {
 // Animate the scene
 export function animate() {
   requestAnimationFrame(animate);
+  controls.update();
   renderer.render(scene, camera);
 }
