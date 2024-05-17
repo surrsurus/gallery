@@ -55,7 +55,6 @@ defmodule Gallery.MixProject do
       {:phoenix, "~> 1.7.12"},
       {:postgrex, ">= 0.0.0"},
       {:random_color, "~> 0.1.0"},
-      {:swoosh, "~> 1.5"},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},

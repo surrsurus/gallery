@@ -20,12 +20,6 @@ config :gallery, GalleryWeb.Endpoint,
   secret_key_base: "nHZD+oX0eHHajigrk5q68fxApPLkz3ASGusLf/vv4HpTqmaSeNKR6FpxhfT6Ufio",
   server: false
 
-# In test we don't send emails.
-config :gallery, Gallery.Mailer, adapter: Swoosh.Adapters.Test
-
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
-
 # Print only warnings and errors during test
 config :logger, level: :warning
 
