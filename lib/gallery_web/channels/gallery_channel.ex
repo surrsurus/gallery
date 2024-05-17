@@ -44,7 +44,7 @@ defmodule GalleryWeb.GalleryChannel do
   def terminate(_reason, %{assigns: %{player_id: player_id}} = socket) do
     PlayerCache.remove(player_id)
 
-    broadcast!(socket, "player_left", %{player_id: player_id})
+    broadcast!(socket, "player_left", %{id: player_id})
     socket
   end
 end
