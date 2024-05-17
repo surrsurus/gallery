@@ -15,6 +15,8 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 ## Setup (OSX)
 
+Postgres isn't being used (yet) so feel free to skip those steps.
+
 1. Install dependencies with [ASDF](https://asdf-vm.com/)
 
 ```

@@ -11,7 +11,7 @@ defmodule Gallery.Application do
 
     children = [
       GalleryWeb.Telemetry,
-      Gallery.Repo,
+      # Gallery.Repo,
       {DNSCluster, query: Application.get_env(:gallery, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Gallery.PubSub},
       # Start the Finch HTTP client for sending emails
