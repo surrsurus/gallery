@@ -11,7 +11,16 @@ defmodule Gallery.MixProject do
       aliases: aliases(),
       deps: deps(),
       test_coverage: [
-        ignore_modules: [Gallery.DataCase, Gallery.Repo, GalleryWeb.Layouts, ~r/HTML/]
+        ignore_modules: [
+          Gallery.Application,
+          Gallery.DataCase,
+          Gallery.Repo,
+          GalleryWeb.CoreComponents,
+          GalleryWeb.Layouts,
+          GalleryWeb.Router,
+          GalleryWeb.Telemetry,
+          ~r/HTML/
+        ]
       ]
     ]
   end
@@ -77,6 +86,12 @@ defmodule Gallery.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "test.cover": [
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "test --cover --export-coverage default",
+        "test.coverage"
+      ],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind gallery", "esbuild gallery"],
       "assets.deploy": [
@@ -85,5 +100,9 @@ defmodule Gallery.MixProject do
         "phx.digest"
       ]
     ]
+  end
+
+  def cli do
+    [preferred_envs: ["test.cover": :test]]
   end
 end
