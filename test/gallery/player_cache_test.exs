@@ -1,5 +1,5 @@
 defmodule Gallery.PlayerCacheTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   alias Gallery.PlayerCache
   alias Gallery.Player

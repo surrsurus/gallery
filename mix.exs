@@ -9,7 +9,10 @@ defmodule Gallery.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      test_coverage: [
+        ignore_modules: [Gallery.DataCase, Gallery.Repo, GalleryWeb.Layouts, ~r/HTML/]
+      ]
     ]
   end
 

@@ -16,7 +16,7 @@ defmodule GalleryWeb.GalleryChannel do
     incoming_player = Player.new!(player_id)
     PlayerCache.insert(incoming_player)
 
-    broadcast!(socket, "player_joined", %{player: incoming_player})
+    broadcast!(socket, "player_joined", %{"player" => incoming_player})
     {:noreply, socket}
   end
 
@@ -44,7 +44,7 @@ defmodule GalleryWeb.GalleryChannel do
   def terminate(_reason, %{assigns: %{player_id: player_id}} = socket) do
     PlayerCache.remove(player_id)
 
-    broadcast!(socket, "player_left", %{id: player_id})
+    broadcast!(socket, "player_left", %{"id" => player_id})
     socket
   end
 end
