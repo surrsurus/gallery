@@ -27,8 +27,8 @@ defmodule Gallery.DataCase do
     end
   end
 
-  setup tags do
-    Gallery.DataCase.setup_sandbox(tags)
+  setup _tags do
+    # Gallery.DataCase.setup_sandbox(tags)
     :ok
   end
 

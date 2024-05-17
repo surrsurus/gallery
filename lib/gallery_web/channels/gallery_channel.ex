@@ -1,14 +1,12 @@
 defmodule GalleryWeb.GalleryChannel do
   use Phoenix.Channel
 
-  alias Gallery.ActivePlayerCache
+  alias Gallery.PlayerCache
 
   @room "gallery:main"
 
   def join(@room, %{}, socket) do
-    players =
-      ActivePlayerCache.all()
-      |> Enum.map(fn tuple -> elem(tuple, 1) end)
+    players = PlayerCache.all()
 
     {:ok, players, socket}
   end

@@ -3,16 +3,16 @@ defmodule GalleryWeb.GalleryLive do
 
   require Logger
 
-  alias Gallery.ActivePlayerCache
+  alias Gallery.PlayerCache
   alias Gallery.Player
   alias GalleryWeb.GalleryChannel
 
   def mount(_params, _session, socket) do
     socket =
       if connected?(socket) do
-        player = Player.new()
+        player = Player.new!()
 
-        ActivePlayerCache.add(player)
+        PlayerCache.insert(player)
         GalleryChannel.broadcast("player_joined", %{player: player})
 
         socket
@@ -26,7 +26,7 @@ defmodule GalleryWeb.GalleryLive do
   end
 
   def terminate(_reason, %{assigns: %{player: player}} = socket) do
-    ActivePlayerCache.remove(player)
+    PlayerCache.remove(player)
     GalleryChannel.broadcast("player_left", %{player: player})
 
     socket
@@ -34,7 +34,7 @@ defmodule GalleryWeb.GalleryLive do
 
   def handle_event("canvas_keydown", %{"key" => "w"}, %{assigns: %{player: player}} = socket) do
     player = %{player | y: player.y + 1}
-    ActivePlayerCache.add(player)
+    PlayerCache.insert(player)
     GalleryChannel.broadcast("player_moved", %{player: player})
 
     {:noreply, assign(socket, player: player)}
@@ -42,7 +42,7 @@ defmodule GalleryWeb.GalleryLive do
 
   def handle_event("canvas_keydown", %{"key" => "a"}, %{assigns: %{player: player}} = socket) do
     player = %{player | x: player.x - 1}
-    ActivePlayerCache.add(player)
+    PlayerCache.insert(player)
     GalleryChannel.broadcast("player_moved", %{player: player})
 
     {:noreply, assign(socket, player: player)}
@@ -50,7 +50,7 @@ defmodule GalleryWeb.GalleryLive do
 
   def handle_event("canvas_keydown", %{"key" => "s"}, %{assigns: %{player: player}} = socket) do
     player = %{player | y: player.y - 1}
-    ActivePlayerCache.add(player)
+    PlayerCache.insert(player)
     GalleryChannel.broadcast("player_moved", %{player: player})
 
     {:noreply, assign(socket, player: player)}
@@ -58,7 +58,7 @@ defmodule GalleryWeb.GalleryLive do
 
   def handle_event("canvas_keydown", %{"key" => "d"}, %{assigns: %{player: player}} = socket) do
     player = %{player | x: player.x + 1}
-    ActivePlayerCache.add(player)
+    PlayerCache.insert(player)
     GalleryChannel.broadcast("player_moved", %{player: player})
 
     {:noreply, assign(socket, player: player)}
