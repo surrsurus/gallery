@@ -31,6 +31,17 @@ export class Player {
   }
 }
 
+export function fromPhoenix(player) {
+  const geometry = new THREE.BoxGeometry();
+  const material = new THREE.MeshBasicMaterial({ color: player.color });
+  const position = new THREE.Vector3(player.x, player.y, player.z);
+  const p = new Player(geometry, material, position);
+
+  p.addToScene();
+
+  return p;
+}
+
 // Add the canvas to the current page
 export function addCanvas() {
   document.body.appendChild(renderer.domElement);
