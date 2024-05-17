@@ -1,6 +1,8 @@
 # Gallery
 
-3D Multiplayer Demo with Phoenix + Three.JS
+3D Multiplayer Demo with Phoenix Channels + Three.JS
+
+![CI Status](https://github.com/surrsurus/gallery/actions/workflows/ci.yml/badge.svg)
 
 https://github.com/surrsurus/gallery/assets/9388076/c42988be-5b59-474e-b255-e648d531d130
 
