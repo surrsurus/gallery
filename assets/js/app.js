@@ -49,8 +49,11 @@ window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
+// store player id
+let my_id = null;
+
 // store players met during the current session
-const players = {};
+let current_players = {};
 
 window.addEventListener("phx:start_scene", (_e) => {
   addCanvas();
@@ -58,14 +61,42 @@ window.addEventListener("phx:start_scene", (_e) => {
 });
 
 channel.join()
-  .receive("ok", resp => resp.map(player => addPlayer(player)))
-  .receive("error", resp => { console.log("Unable to join", resp) })
+  .receive("ok", ({players: players, id: id}) => {
+    players.map(player => addPlayer(player));
+    my_id = id;
+
+    channel.push("ready", {id: id});
+  })
+  .receive("error", resp => { console.log("Unable to join", resp) });
 
 channel.on("player_joined", ({ player: player }) => addPlayer(player));
 
-channel.on("player_left", ({ player: player }) => players[player.id].removeFromScene());
+channel.on("player_left", ({ id: id }) => current_players[id].removeFromScene());
 
-channel.on("player_moved", ({ player: player }) => players[player.id].updatePosition(player));
+channel.on("player_moved", ({ id: id, dx: dx, dy: dy, dz: dz }) => current_players[id].updatePosition(dx, dy, dz));
+
+document.addEventListener('keydown', function(event) {
+  switch (event.key) {
+    case 'w':
+    case 'W':
+      channel.push("update_position", {id: my_id, dx: 0, dy: 1, dz: 0});
+      break;
+    case 'a':
+    case 'A':
+      channel.push("update_position", {id: my_id, dx: -1, dy: 0, dz: 0});
+      break;
+    case 's':
+    case 'S':
+      channel.push("update_position", {id: my_id, dx: 0, dy: -1, dz: 0});
+      break;
+    case 'd':
+    case 'D':
+      channel.push("update_position", {id: my_id, dx: 1, dy: 0, dz: 0});
+      break;
+    default:
+      return;
+  }
+});
 
 function addPlayer(player) {
   const geometry = new THREE.BoxGeometry();
@@ -73,7 +104,7 @@ function addPlayer(player) {
   const position = new THREE.Vector3(player.x, player.y, player.z);
   const p = new Player(geometry, material, position);
 
-  players[player.id] = p;
+  current_players[player.id] = p;
   p.addToScene();
 }
 

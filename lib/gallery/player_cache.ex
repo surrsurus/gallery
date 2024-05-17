@@ -21,7 +21,14 @@ defmodule Gallery.PlayerCache do
 
   def insert(player), do: :ets.insert(@cache, {player.id, player})
 
-  def remove(player), do: :ets.delete(@cache, player.id)
+  def get(id) do
+    case :ets.lookup(@cache, id) do
+      [{_id, player}] -> player
+      [] -> nil
+    end
+  end
+
+  def remove(id), do: :ets.delete(@cache, id)
 
   def all(), do: :ets.tab2list(@cache) |> Enum.map(fn tuple -> elem(tuple, 1) end)
 end

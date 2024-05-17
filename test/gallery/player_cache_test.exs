@@ -4,8 +4,6 @@ defmodule Gallery.PlayerCacheTest do
   alias Gallery.PlayerCache
   alias Gallery.Player
 
-  @expected_name :active_players
-
   describe "Before the application starts" do
     test "PlayerCache can be created" do
       assert PlayerCache.create() == :active_players
@@ -21,27 +19,27 @@ defmodule Gallery.PlayerCacheTest do
 
     test "can have entries inserted", %{player: player} do
       assert PlayerCache.insert(player) == true
-      assert :ets.lookup(@expected_name, player.id) == [{player.id, player}]
+      assert PlayerCache.get(player.id) == player
     end
 
     test "can have inserted entries updated", %{player: player} do
       assert PlayerCache.insert(player) == true
-      assert :ets.lookup(@expected_name, player.id) == [{player.id, player}]
+      assert PlayerCache.get(player.id) == player
 
       # Player moves
       new_player = %{player | x: 5}
 
       assert PlayerCache.insert(new_player) == true
-      assert :ets.lookup(@expected_name, player.id) == [{new_player.id, new_player}]
+      assert PlayerCache.get(player.id) == new_player
     end
 
     test "can have inserted entries removed", %{player: player} do
       assert PlayerCache.insert(player) == true
-      assert :ets.lookup(@expected_name, player.id) == [{player.id, player}]
+      assert PlayerCache.get(player.id) == player
 
       # Player leaves
-      assert PlayerCache.remove(player) == true
-      assert :ets.lookup(@expected_name, player.id) == []
+      assert PlayerCache.remove(player.id) == true
+      assert PlayerCache.get(player.id) == nil
     end
 
     test "can have all entries retrieved", %{player: player} do

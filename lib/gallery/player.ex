@@ -22,9 +22,11 @@ defmodule Gallery.Player do
     timestamps(inserted_at: :created_at, updated_at: false, type: :naive_datetime_usec)
   end
 
-  def new!() do
+  def new!(), do: new!(Ecto.UUID.generate())
+
+  def new!(id) do
     changeset(%{
-      id: Ecto.UUID.generate(),
+      id: id,
       color: RandomColor.hex(),
       x: 0.0,
       y: 0.0,

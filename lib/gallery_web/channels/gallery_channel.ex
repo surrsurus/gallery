@@ -2,21 +2,49 @@ defmodule GalleryWeb.GalleryChannel do
   use Phoenix.Channel
 
   alias Gallery.PlayerCache
+  alias Gallery.Player
+
+  require Logger
 
   @room "gallery:main"
 
-  def join(@room, %{}, socket) do
-    players = PlayerCache.all()
-
-    {:ok, players, socket}
+  def join(@room, %{}, %{assigns: %{player_id: player_id}} = socket) do
+    {:ok, %{players: PlayerCache.all(), id: player_id}, socket}
   end
 
-  def handle_in("new_player", player, socket) do
-    broadcast!(socket, "player_joined", player)
+  def handle_in("ready", %{"id" => player_id}, %{assigns: %{player_id: player_id}} = socket) do
+    incoming_player = Player.new!(player_id)
+    PlayerCache.insert(incoming_player)
+
+    broadcast!(socket, "player_joined", %{player: incoming_player})
     {:noreply, socket}
   end
 
-  def broadcast(event, payload) do
-    GalleryWeb.Endpoint.broadcast(@room, event, payload)
+  def handle_in(
+        "update_position",
+        %{"dx" => dx, "dy" => dy, "dz" => dz} = payload,
+        %{assigns: %{player_id: player_id}} = socket
+      ) do
+    player = PlayerCache.get(player_id)
+    updated_player = %{player | x: player.x + dx, y: player.y + dy, z: player.z + dz}
+    PlayerCache.insert(updated_player)
+
+    broadcast!(socket, "player_moved", payload)
+    {:noreply, socket}
+  end
+
+  def handle_in(event, payload, %{assigns: %{player_id: player_id}} = socket) do
+    Logger.debug(
+      "[GalleryChannel] Player #{player_id} sent to #{event} an unknown response: #{inspect(payload)}"
+    )
+
+    {:noreply, socket}
+  end
+
+  def terminate(_reason, %{assigns: %{player_id: player_id}} = socket) do
+    PlayerCache.remove(player_id)
+
+    broadcast!(socket, "player_left", %{player_id: player_id})
+    socket
   end
 end

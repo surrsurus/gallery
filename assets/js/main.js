@@ -26,8 +26,8 @@ export class Player {
     scene.remove(this.player);
   }
 
-  updatePosition(player) {
-    this.player.position.set(player.x, player.y, player.z);
+  updatePosition(dx, dy, dz) {
+    this.player.position.set(this.player.position.x + dx, this.player.position.y + dy, this.player.position.z + dz);
   }
 }
 
