@@ -19,7 +19,7 @@ defmodule Gallery.MixProject do
           GalleryWeb.Layouts,
           GalleryWeb.Router,
           GalleryWeb.Telemetry,
-          ~r/HTML/
+          ~r/.+HTML$/
         ]
       ]
     ]
@@ -44,6 +44,7 @@ defmodule Gallery.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:assert_eventually, "~> 1.0.0", only: [:dev, :test]},
       {:bandit, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},

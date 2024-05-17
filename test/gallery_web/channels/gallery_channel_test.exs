@@ -8,59 +8,65 @@ defmodule GalleryWeb.GalleryChannelTest do
 
   @id "1234"
 
-  @timeout 500
-
   describe "GalleryChannel" do
     setup do
       # Create and populate ETS
       PlayerCache.create()
-
-      player_a = Player.new!()
-      player_b = Player.new!()
-
-      PlayerCache.insert(player_a)
-      PlayerCache.insert(player_b)
+      player = Player.new!(@id)
+      PlayerCache.insert(player)
 
       {:ok, _, socket} = join()
 
-      %{player_a: player_a, player_b: player_b, socket: socket}
+      %{player: player, socket: socket}
     end
 
-    test "supports joins", %{player_a: player_a, player_b: player_b} do
-      {:ok, %{id: @id, players: players}, _socket} = join()
+    test "supports joins", %{player: player} do
+      assert {:ok, %{id: @id, players: players}, _socket} = join()
 
-      assert Enum.sort_by(players, & &1.created_at, Time) == [player_a, player_b]
+      eventually assert Enum.sort_by(players, & &1.created_at, Time) == [player]
     end
 
-    test "handles messages from players readying up", %{socket: socket} do
+    test "prepares the cache when players ready up", %{player: player, socket: socket} do
+      # As to not affect the test beforehand
+      PlayerCache.remove(@id)
+      assert PlayerCache.get(@id) == nil
+
       push(socket, "ready", %{"id" => @id})
 
-      Process.sleep(@timeout)
-
-      expected_player = PlayerCache.get(@id)
-      assert_broadcast "player_joined", %{"player" => ^expected_player}, @timeout
+      eventually assert PlayerCache.get(@id)
+      assert_broadcast "player_joined", %{"player" => ready_player}
+      assert ready_player.id == player.id
     end
 
-    test "handles messages from moving players", %{socket: socket} do
-      # Player must exist before they are updated
-      PlayerCache.insert(Player.new!(@id))
+    test "updates the cache and broadcasts updates on request", %{socket: socket} do
       push(socket, "update_position", %{"id" => @id, "dx" => 1, "dy" => 1, "dz" => 1})
 
-      assert_broadcast "player_moved", %{"id" => @id, "dx" => 1, "dy" => 1, "dz" => 1}, @timeout
+      assert_broadcast "player_moved", %{"id" => @id, "dx" => 1, "dy" => 1, "dz" => 1}
     end
 
     test "handles unexpected messages from players", %{socket: socket} do
       push(socket, "spiked_manacles", %{})
 
-      refute_broadcast "*", %{}, @timeout
+      refute_broadcast "*", %{}
     end
 
-    test "handles players leaving", %{socket: socket} do
-      # https://hexdocs.pm/phoenix/Phoenix.ChannelTest.html#module-leave-and-close
+    test "cleans up the cache and broadcasts an exit message when players leave", %{
+      socket: socket
+    } do
       Process.unlink(socket.channel_pid)
       leave(socket)
 
-      assert_broadcast "player_left", %{"id" => @id}, @timeout
+      eventually assert PlayerCache.get(@id) == nil
+      assert_broadcast "player_left", %{"id" => @id}
+    end
+
+    test "cleans up the cache and broadcasts an exit message when players close the connection",
+         %{socket: socket} do
+      Process.unlink(socket.channel_pid)
+      close(socket)
+
+      eventually assert PlayerCache.get(@id) == nil
+      assert_broadcast "player_left", %{"id" => @id}
     end
   end
 

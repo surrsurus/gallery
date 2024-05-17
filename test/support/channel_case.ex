@@ -7,6 +7,8 @@ defmodule GalleryWeb.ChannelCase do
       import Phoenix.ChannelTest
       import GalleryWeb.ChannelCase
 
+      use AssertEventually, timeout: 100, interval: 5
+
       # The default endpoint for testing
       @endpoint GalleryWeb.Endpoint
     end
