@@ -11,7 +11,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 camera.position.set( 0, 1, 5 );
 controls.update();
 
-export class Player {
+class Player {
   constructor(geometry, material, position) {
     this.geometry = geometry;
     this.material = material;
@@ -47,6 +47,7 @@ export function fromPhoenix(player) {
 // Add the canvas to the current page
 export function addCanvas() {
   document.body.appendChild(renderer.domElement);
+  return document.querySelectorAll('[data-engine="three.js r164"]')[0];
 }
 
 // Animate the scene
