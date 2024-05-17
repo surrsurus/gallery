@@ -7,6 +7,8 @@ defmodule Gallery.Application do
 
   @impl true
   def start(_type, _args) do
+    Gallery.ActivePlayerCache.create()
+
     children = [
       GalleryWeb.Telemetry,
       Gallery.Repo,
