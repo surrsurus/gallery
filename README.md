@@ -1,25 +1,24 @@
-# Gallery
+# Gallery ![CI Status](https://github.com/surrsurus/gallery/actions/workflows/ci.yml/badge.svg)
 
 3D Multiplayer Demo with Phoenix Channels + Three.JS
 
-![CI Status](https://github.com/surrsurus/gallery/actions/workflows/ci.yml/badge.svg)
-
 https://github.com/surrsurus/gallery/assets/9388076/c42988be-5b59-474e-b255-e648d531d130
 
-To start your Phoenix server:
+## Getting Started
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+### Prerequisites
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+This project uses [ASDF](https://asdf-vm.com/) to manage dependencies
 
-## Setup (OSX)
+### Installing
+
+#### OSX
 
 Postgres isn't being used (yet) so feel free to skip those steps.
 
-1. Install dependencies with [ASDF](https://asdf-vm.com/)
+1. Add and install plugins with ASDF
 
 ```
 asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
@@ -51,25 +50,14 @@ postgres=# CREATE USER postgres SUPERUSER;
 postgres=# CREATE DATABASE postgres WITH OWNER postgres;
 ```
 
-5. Setup ecto
+### Running
 
-```
-mix ecto.setup
-```
+To start your Phoenix server:
 
-6. Setup node
+  * Run `mix setup` to install and setup dependencies
+  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
 
-```
-cd assets
-npm install
-cd ..
-```
-
-7. Start server
-
-```
-mix phx.server
-```
+Now you can visit [`localhost:4000/gallery`](http://localhost:4000/gallery) from your browser.
 
 ## Learn more
 
