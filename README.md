@@ -1,4 +1,4 @@
-# Gallery ![CI Status](https://github.com/surrsurus/gallery/actions/workflows/ci.yml/badge.svg)
+# Gallery ![CI Status](https://github.com/surrsurus/gallery/actions/workflows/ci.yml/badge.svg) ![License](https://img.shields.io/github/license/surrsurus/gallery)
 
 3D Multiplayer Demo with Phoenix Channels + Three.JS
 
@@ -66,3 +66,10 @@ Now you can visit [`localhost:4000/gallery`](http://localhost:4000/gallery) from
   * Docs: https://hexdocs.pm/phoenix
   * Forum: https://elixirforum.com/c/phoenix-forum
   * Source: https://github.com/phoenixframework/phoenix
+
+
+## License
+
+<img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/i/7195e121-eded-45cf-9aab-909deebd81b2/d9ur2lg-28410b47-58fd-4a48-9b67-49c0f56c68ce.png/v1/fill/w_1035,h_772,q_70,strp/mit_license_logo_by_excaliburzero_d9ur2lg-pre.jpg" width="128"/>
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
