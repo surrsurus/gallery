@@ -29,7 +29,7 @@ jobs:
           --health-retries 5
 
     runs-on: ubuntu-latest
-    name: CI
+    name: Elixir CI
     strategy:
       matrix:
         otp: ['26.2.5']
@@ -93,7 +93,7 @@ jobs:
           --health-retries 5
 
     runs-on: ubuntu-latest
-    name: Coverage
+    name: Elixir Test Coverage
     strategy:
       matrix:
         otp: ['26.2.5']
