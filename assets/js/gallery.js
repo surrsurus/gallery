@@ -1,5 +1,5 @@
 import { channel } from "./gallery_socket.js"
-import { animate, addCanvas, resetCamera, Player} from './main.js';
+import { animate, addCanvas, moveCamera, resetCamera, Player} from './main.js';
 
 // store player id
 let my_id = null;
@@ -45,18 +45,22 @@ function prepareCanvas() {
       case 'w':
       case 'W':
         channel.push("update_position", { id: my_id, dx: 0, dy: 1, dz: 0 });
+        moveCamera(0, 1, 0);
         break;
       case 'a':
       case 'A':
         channel.push("update_position", { id: my_id, dx: -1, dy: 0, dz: 0 });
+        moveCamera(-1, 0, 0);
         break;
       case 's':
       case 'S':
         channel.push("update_position", { id: my_id, dx: 0, dy: -1, dz: 0 });
+        moveCamera(0, -1, 0);
         break;
       case 'd':
       case 'D':
         channel.push("update_position", { id: my_id, dx: 1, dy: 0, dz: 0 });
+        moveCamera(1, 0, 0);
         break;
       case 'r':
       case 'R':

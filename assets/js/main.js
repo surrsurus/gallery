@@ -79,6 +79,12 @@ export function animate() {
   requestAnimationFrame(animate);
 }
 
+export function moveCamera(dx, dy, dz) {
+  const delta_pos = new THREE.Vector3(dx, dy, dz);
+  camera.position.add(delta_pos);
+  controls.target.add(delta_pos);
+}
+
 export function resetCamera() {
   // if you reset in the middle of a sweep, the camera 
   // will still move after the reset due to damping
@@ -87,7 +93,6 @@ export function resetCamera() {
   controls.enableDamping = false;
   controls.update();
   controls.reset();
-  controls.update();
   controls.enableDamping = true;
   controls.update();
 }
