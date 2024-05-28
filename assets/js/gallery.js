@@ -79,6 +79,8 @@ function prepareCanvas() {
 function animate() {
   requestAnimationFrame(animate);
 
+  camera_controls.update();
+
   // grow light in intensity when first loading
   // TODO: would be cool if i could do this and not constatly 
   // check this as part of my animation loop after it's finished
@@ -100,14 +102,17 @@ function animate() {
       current_players[my_id].drawable.rotateY(-0.05);
     }
 
-    a.lerp(current_players[my_id].drawable.position, 0.4);
-    b.copy(camera_controls.boom.position);
-
-    const dir = a.clone().sub(b).normalize();
-    const dis = a.distanceTo(b) - camera_controls.coronaSafetyDistance;
-    camera_controls.boom.position.addScaledVector(dir, dis);
-
-    camera_controls.camera.lookAt(current_players[my_id].drawable.position);
+    if (speed != 0.0) {
+      a.lerp(current_players[my_id].drawable.position, 0.4);
+      b.copy(camera_controls.boom.position);
+  
+      const dir = a.clone().sub(b).normalize();
+      const dis = a.distanceTo(b) - camera_controls.coronaSafetyDistance;
+      camera_controls.boom.position.addScaledVector(dir, dis);
+      camera_controls.controls.target.copy(current_players[my_id].drawable.position)
+  
+      camera_controls.camera.lookAt(current_players[my_id].drawable.position);  
+    }
 
     // Only send updates if we are getting updates from the player
     if (Object.values(keys).some(v => v === true)) {

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { scene } from './scene.js';
-// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { scene, renderer } from './scene.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 class Drawable {
   constructor(drawable, position, autoAdd = true) {
@@ -66,10 +66,11 @@ export class CameraControls {
     this.boom.position.z = -this.coronaSafetyDistance;
     this.boom.add(this.camera);
 
-    // TODO: attach orbit controls to camera
-    // this.controls = new OrbitControls(this.camera, renderer.domElement);
-    // this.controls.enableDamping = true;
-    // this.controls.update();
-    // this.controls.saveState();
+    this.controls = new OrbitControls(this.camera, renderer.domElement);
+    this.controls.enableDamping = true;
+  }
+
+  update() {
+    this.controls.update();
   }
 }
