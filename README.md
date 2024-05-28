@@ -2,7 +2,7 @@
 
 3D Multiplayer Demo with Phoenix Channels + Three.JS
 
-https://github.com/surrsurus/gallery/assets/9388076/c42988be-5b59-474e-b255-e648d531d130
+https://github.com/surrsurus/gallery/assets/9388076/78b817d5-1c4d-45f0-8ed6-f3176d369467
 
 ## Getting Started
 
