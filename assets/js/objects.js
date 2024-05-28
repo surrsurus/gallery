@@ -33,7 +33,6 @@ class Drawable {
 
 export class Player extends Drawable {
   constructor(payload) {
-    console.log(payload);
     const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
     const material = new THREE.MeshLambertMaterial({ color: payload.color });
 
