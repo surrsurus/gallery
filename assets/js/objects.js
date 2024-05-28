@@ -70,6 +70,11 @@ export class CameraControls {
     this.controls.enableDamping = true;
   }
 
+  resize() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+  }
+
   update() {
     this.controls.update();
   }

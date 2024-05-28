@@ -4,25 +4,19 @@ import { scene, renderer } from './scene.js';
 import { CameraControls, Light, Player } from './objects.js';
 
 const camera_controls = new CameraControls();
-const mainLight = new Light(new THREE.Vector3(10, 10, 10));
-
-let velocity = 0.0;
-let a = new THREE.Vector3;
-let b = new THREE.Vector3;
+const mainLight = new Light(new THREE.Vector3(0, 5, -10)); // main light in the scene
 
 // keymap of what keys are currently pressed
 const keys = {
   a: false,
   s: false,
   d: false,
-  w: false
+  w: false,
+  shiftleft: false,
 };
 
-// store player id
-let my_id = null;
-
-// store players met during the current session
-let current_players = {};
+let my_id = null; // store player id
+let current_players = {}; // store players met during the current session
 
 // only start up the three.js scene if we get the sign we're all connected from the phoenix live page
 window.addEventListener("phx:start_scene", (_e) => {
@@ -63,14 +57,19 @@ function prepareCanvas() {
   // let canvas be focusable so the event listener can catch key events
   canvas.tabIndex = 1;
 
-  document.body.addEventListener('keydown', function (e) {
-    var key = e.code.replace('Key', '').toLowerCase();
+  document.body.addEventListener('keydown', (e) => {
+    const key = e.code.replace('Key', '').toLowerCase();
     if (keys[key] !== undefined) { keys[key] = true; }
   });
 
-  document.body.addEventListener('keyup', function (e) {
-    var key = e.code.replace('Key', '').toLowerCase();
+  document.body.addEventListener('keyup', (e) => {
+    const key = e.code.replace('Key', '').toLowerCase();
     if (keys[key] !== undefined) { keys[key] = false; }
+  });
+
+  window.addEventListener('resize', (_e) => {
+    camera_controls.resize();
+    renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
   animate();
@@ -90,11 +89,11 @@ function animate() {
 
   if (current_players[my_id]) {
     let speed = 0.0;
+    let speedMod = 1.0;
 
-    if (keys.w) { speed = 0.01; } else if (keys.s) { speed = -0.01; }
+    if (keys.shiftleft) { speedMod = 2.5; }
 
-    velocity += (speed - velocity) * .3;
-    current_players[my_id].drawable.translateZ(velocity);
+    if (keys.w) { speed = 0.01 * speedMod; } else if (keys.s) { speed = -0.01 * speedMod; }
 
     if (keys.a) {
       current_players[my_id].drawable.rotateY(0.05);
@@ -103,6 +102,11 @@ function animate() {
     }
 
     if (speed != 0.0) {
+      current_players[my_id].drawable.translateZ(speed);
+  
+      const a = new THREE.Vector3;
+      const b = new THREE.Vector3;
+
       a.lerp(current_players[my_id].drawable.position, 0.4);
       b.copy(camera_controls.boom.position);
   
@@ -114,7 +118,7 @@ function animate() {
       camera_controls.camera.lookAt(current_players[my_id].drawable.position);  
     }
 
-    // Only send updates if we are getting updates from the player
+    // Send updates if we are getting updates from the player
     if (Object.values(keys).some(v => v === true)) {
       channel.push("update_position", { 
         id: my_id, 
