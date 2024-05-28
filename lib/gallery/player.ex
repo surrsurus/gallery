@@ -12,13 +12,14 @@ defmodule Gallery.Player do
   import Ecto.Changeset
 
   @primary_key false
-  @derive {Jason.Encoder, only: [:id, :color, :x, :y, :z]}
+  @derive {Jason.Encoder, only: [:id, :color, :x, :y, :z, :rot]}
   typed_schema "player" do
     field :id, :string
     field :color, :string
     field :x, :float
     field :y, :float
     field :z, :float
+    field :rot, :map
     timestamps(inserted_at: :created_at, updated_at: false, type: :naive_datetime_usec)
   end
 
@@ -31,12 +32,13 @@ defmodule Gallery.Player do
       x: 0.0,
       y: 0.0,
       z: 0.0,
+      rot: %{"_order" => "XYZ", "_x" => 0, "_y" => 0, "_z" => 0, "isEuler" => true},
       created_at: DateTime.utc_now()
     })
     |> apply_action!(:new)
   end
 
   def changeset(player \\ %__MODULE__{}, params) do
-    cast(player, params, [:id, :color, :x, :y, :z, :created_at])
+    cast(player, params, [:id, :color, :x, :y, :z, :rot, :created_at])
   end
 end

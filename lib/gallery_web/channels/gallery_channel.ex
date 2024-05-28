@@ -22,11 +22,11 @@ defmodule GalleryWeb.GalleryChannel do
 
   def handle_in(
         "update_position",
-        %{"dx" => dx, "dy" => dy, "dz" => dz} = payload,
+        %{"x" => dx, "y" => dy, "z" => dz, "rot" => rot} = payload,
         %{assigns: %{player_id: player_id}} = socket
       ) do
     player = PlayerCache.get(player_id)
-    updated_player = %{player | x: player.x + dx, y: player.y + dy, z: player.z + dz}
+    updated_player = %{player | x: dx, y: dy, z: dz, rot: rot}
     PlayerCache.insert(updated_player)
 
     broadcast!(socket, "player_moved", payload)

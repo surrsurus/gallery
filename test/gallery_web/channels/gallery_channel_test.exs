@@ -39,9 +39,21 @@ defmodule GalleryWeb.GalleryChannelTest do
     end
 
     test "updates the cache and broadcasts updates on request", %{socket: socket} do
-      push(socket, "update_position", %{"id" => @id, "dx" => 1, "dy" => 1, "dz" => 1})
+      push(socket, "update_position", %{
+        "id" => @id,
+        "x" => 1,
+        "y" => 1,
+        "z" => 1,
+        "rot" => %{"_order" => "XYZ", "_x" => 0, "_y" => 0, "_z" => 0, "isEuler" => true}
+      })
 
-      assert_broadcast "player_moved", %{"id" => @id, "dx" => 1, "dy" => 1, "dz" => 1}
+      assert_broadcast "player_moved", %{
+        "id" => @id,
+        "x" => 1,
+        "y" => 1,
+        "z" => 1,
+        "rot" => %{"_order" => "XYZ", "_x" => 0, "_y" => 0, "_z" => 0, "isEuler" => true}
+      }
     end
 
     test "handles unexpected messages from players", %{socket: socket} do
