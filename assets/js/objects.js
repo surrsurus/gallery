@@ -33,7 +33,8 @@ class Drawable {
 
 export class Player extends Drawable {
   constructor(payload) {
-    const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+    // even though this isn't exactly square, the camera perspective will make it look better
+    const geometry = new THREE.BoxGeometry(0.19, 0.21, 0.19);
     const material = new THREE.MeshLambertMaterial({ color: payload.color });
 
     const position = new THREE.Vector3(payload.x, payload.y, payload.z);
