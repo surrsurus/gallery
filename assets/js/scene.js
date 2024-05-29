@@ -7,6 +7,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 
 scene.add(gridHelper);
 scene.add(axesHelper);
-renderer.setSize(window.innerWidth, window.innerHeight);
+const canvasHtml = document.getElementById("gallery-canvas");
+renderer.setSize(canvasHtml.offsetWidth, canvasHtml.offsetHeight);
 
 export { scene, renderer };
