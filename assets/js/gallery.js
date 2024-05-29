@@ -135,15 +135,18 @@ function animate() {
     if (speed != 0.0) {
       me.translateZ(speed);
 
-      const a = me.position.clone();
+      const myFloorPos = me.position.clone();
+      myFloorPos.y = 0;
+
+      const a = myFloorPos.clone();
       const b = camera_rig.boom.position.clone();
 
       const dir = a.clone().sub(b).normalize();
       const dis = a.distanceTo(b) - camera_rig.boomLength;
 
       camera_rig.boom.position.addScaledVector(dir, dis);
-      camera_rig.controls.target.copy(me.position)
-      camera_rig.camera.lookAt(me.position);
+      camera_rig.controls.target.copy(myFloorPos)
+      camera_rig.camera.lookAt(myFloorPos);
     }
 
     // Send updates if we are getting updates from the player
