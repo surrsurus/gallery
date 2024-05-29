@@ -101,7 +101,8 @@ defmodule Gallery.MixProject do
         "phx.digest"
       ],
       "npm.install": ["cmd cd assets && npm install"],
-      eslint: ["cmd cd assets && npx eslint"]
+      eslint: ["cmd cd assets && npx eslint"],
+      check: ["format --check-formatted", "eslint"]
     ]
   end
 

@@ -75,11 +75,8 @@ jobs:
     - name: Compiles without warnings
       run: mix compile --warnings-as-errors
 
-    - name: Check Elixir Formatting
-      run: mix format --check-formatted
-
-    - name: Check JS Formatting
-      run: mix eslint
+    - name: Check Formatting
+      run: mix check
 
     - name: Run tests
       run: mix test
@@ -145,10 +142,7 @@ jobs:
       run: mix compile --warnings-as-errors
 
     - name: Check Formatting
-      run: mix format --check-formatted
-
-    - name: Check JS Formatting
-      run: mix eslint
+      run: mix check
 
     - name: Run tests with coverage
       run: mix test.cover
