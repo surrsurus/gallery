@@ -18,6 +18,7 @@ defmodule GalleryWeb.GallerySocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
+  @spec connect(any(), Phoenix.Socket.t(), any()) :: {:ok, Phoenix.Socket.t()}
   def connect(_params, socket, _connect_info) do
     # TODO: We could have persistent player profiles if we saved the player ID to a session cookie
     # the JS could just send the ID back to us and we'd pull the player's data from postgres via ecto
@@ -35,5 +36,6 @@ defmodule GalleryWeb.GallerySocket do
   #
   # Returning `nil` makes this socket anonymous.
   @impl true
+  @spec id(any()) :: nil
   def id(_socket), do: nil
 end
