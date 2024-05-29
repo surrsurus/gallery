@@ -127,7 +127,7 @@ function animate() {
               },
               250
             )
-            .easing(TWEEN.Easing.Cubic.Out)
+            .easing(TWEEN.Easing.Cubic.In)
             .start()
         })
     }
