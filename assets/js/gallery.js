@@ -1,8 +1,10 @@
 import * as THREE from 'three';
+import Stats from 'stats.js'
 import { channel } from './gallery_socket.js';
 import { scene, renderer } from './scene.js';
 import { CameraControls, Light, Player } from './objects.js';
 
+const fpsMeter = new Stats();
 const camera_controls = new CameraControls();
 const mainLight = new Light(new THREE.Vector3(0, 5, -10)); // main light in the scene
 
@@ -20,11 +22,10 @@ let current_players = {}; // store players met during the current session
 
 // only start up the three.js scene if we get the sign we're all connected from the phoenix live page
 window.addEventListener("phx:start_scene", (_e) => {
-  // on join we get our id, and current players
+  // on join we get our id, and the list of current players
   channel.join()
     .receive("ok", ({ players: players, id: id }) => {
-      // we render the players, then tell the server we're ready
-      // this will cause the server to send out messages letting everyone else know we can be rendered
+      // we prepare to render the other players, then tell the server we're ready to be rendered ourselves
       players.map(addNewPlayer);
       my_id = id;
 
@@ -52,10 +53,18 @@ channel.on("player_moved", ({ id: id, x: x, y: y, z: z, rot: rot }) => {
 });
 
 function prepareCanvas() {
-  const canvas = document.body.appendChild(renderer.domElement);
+  const statHtml = document.getElementById("stats-canvas");
+  const canvasHtml = document.getElementById("gallery-canvas");
 
-  // let canvas be focusable so the event listener can catch key events
+  // and canvas and let it be focusable to capture key events
+  const canvas = canvasHtml.appendChild(renderer.domElement);
   canvas.tabIndex = 1;
+
+  // enable fps meter and position it better
+  // this will have it be positioned relative to it's container so it won't overlap the header
+  fpsMeter.showPanel(0);
+  const fpsMeterCanvas = statHtml.appendChild(fpsMeter.dom);
+  fpsMeterCanvas.style.position = "absolute";
 
   document.body.addEventListener('keydown', (e) => {
     const key = e.code.replace('Key', '').toLowerCase();
@@ -77,6 +86,7 @@ function prepareCanvas() {
 
 function animate() {
   requestAnimationFrame(animate);
+  fpsMeter.begin();
 
   camera_controls.update();
 
@@ -103,34 +113,36 @@ function animate() {
 
     if (speed != 0.0) {
       current_players[my_id].drawable.translateZ(speed);
-  
+
       const a = new THREE.Vector3;
       const b = new THREE.Vector3;
 
       a.lerp(current_players[my_id].drawable.position, 0.4);
       b.copy(camera_controls.boom.position);
-  
+
       const dir = a.clone().sub(b).normalize();
       const dis = a.distanceTo(b) - camera_controls.coronaSafetyDistance;
+
       camera_controls.boom.position.addScaledVector(dir, dis);
       camera_controls.controls.target.copy(current_players[my_id].drawable.position)
-  
-      camera_controls.camera.lookAt(current_players[my_id].drawable.position);  
+      camera_controls.camera.lookAt(current_players[my_id].drawable.position);
     }
 
     // Send updates if we are getting updates from the player
     if (Object.values(keys).some(v => v === true)) {
-      channel.push("update_position", { 
-        id: my_id, 
-        x: current_players[my_id].drawable.position.x, 
-        y: current_players[my_id].drawable.position.y, 
-        z: current_players[my_id].drawable.position.z, 
-        rot: current_players[my_id].drawable.rotation 
+      channel.push("update_position", {
+        id: my_id,
+        x: current_players[my_id].drawable.position.x,
+        y: current_players[my_id].drawable.position.y,
+        z: current_players[my_id].drawable.position.z,
+        rot: current_players[my_id].drawable.rotation
       });
     }
   }
 
   renderer.render(scene, camera_controls.camera);
+
+  fpsMeter.end();
 }
 
 function addNewPlayer(player_data) {

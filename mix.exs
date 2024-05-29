@@ -100,7 +100,8 @@ defmodule Gallery.MixProject do
         "esbuild gallery --minify",
         "phx.digest"
       ],
-      "npm.install": ["cmd cd assets && npm install"]
+      "npm.install": ["cmd cd assets && npm install"],
+      eslint: ["cmd cd assets && npx eslint"]
     ]
   end
 

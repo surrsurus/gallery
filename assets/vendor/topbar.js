@@ -19,7 +19,7 @@
         window[vendors[x] + "CancelRequestAnimationFrame"];
     }
     if (!window.requestAnimationFrame)
-      window.requestAnimationFrame = function (callback, element) {
+      window.requestAnimationFrame = function (callback, _element) {
         var currTime = new Date().getTime();
         var timeToCall = Math.max(0, 16 - (currTime - lastTime));
         var id = window.setTimeout(function () {
@@ -94,14 +94,14 @@
     topbar = {
       config: function (opts) {
         for (var key in opts)
-          if (options.hasOwnProperty(key)) options[key] = opts[key];
+          if (Object.prototype.hasOwnProperty.call(options, key)) options[key] = opts[key];
       },
       show: function (delay) {
         if (showing) return;
         if (delay) {
           if (delayTimerId) return;
           delayTimerId = setTimeout(() => topbar.show(), delay);
-        } else  {
+        } else {
           showing = true;
           if (fadeTimerId !== null) window.cancelAnimationFrame(fadeTimerId);
           if (!canvas) createCanvas();
@@ -155,10 +155,6 @@
 
   if (typeof module === "object" && typeof module.exports === "object") {
     module.exports = topbar;
-  } else if (typeof define === "function" && define.amd) {
-    define(function () {
-      return topbar;
-    });
   } else {
     this.topbar = topbar;
   }

@@ -58,7 +58,7 @@ export class CameraControls {
     this.coronaSafetyDistance = 0.3;
 
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10);
-    this.camera.position.set( 0, 0.3, -1 );
+    this.camera.position.set(0, 0.3, -1);
     this.camera.lookAt(scene.position);
 
     this.boom = new THREE.Object3D;
