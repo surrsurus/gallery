@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js'
 import Stats from 'stats.js'
 import { channel } from './gallery_socket.js';
 import { scene, renderer } from './scene.js';
@@ -15,6 +16,7 @@ const keys = {
   d: false,
   w: false,
   shiftleft: false,
+  space: false,
 };
 
 let my_id = null; // store player id
@@ -89,6 +91,7 @@ function animate() {
   fpsMeter.begin();
 
   camera_rig.update();
+  TWEEN.update();
 
   // grow light in intensity when first loading
   // TODO: would be cool if i could do this and not constatly 
@@ -105,6 +108,29 @@ function animate() {
     if (keys.shiftleft) { speedMod = 2.5; }
     if (keys.w) { speed = 0.01 * speedMod; } else if (keys.s) { speed = -0.01 * speedMod; }
     if (keys.a) { me.rotateY(0.05); } else if (keys.d) { me.rotateY(-0.05); }
+
+    if (keys.space && me.position.y == 0) {
+      new TWEEN.Tween(me.position)
+        .to(
+          {
+            y: me.position.y + 0.3,
+          },
+          250
+        )
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start()
+        .onComplete(() => {
+          new TWEEN.Tween(me.position)
+            .to(
+              {
+                y: 0,
+              },
+              250
+            )
+            .easing(TWEEN.Easing.Cubic.Out)
+            .start()
+        })
+    }
 
     if (speed != 0.0) {
       me.translateZ(speed);
