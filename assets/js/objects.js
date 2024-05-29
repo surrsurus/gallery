@@ -55,14 +55,15 @@ export class Light extends Drawable {
 
 export class CameraRig {
   constructor() {
-    this.coronaSafetyDistance = 0.3;
-
+    // sets how long the camera boom is. the camera will be allowed to go below this, but won't go above it
+    this.boomLength = 0.15;
+    
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10);
     this.camera.position.set(0, 0.3, -1);
     this.camera.lookAt(scene.position);
 
     this.boom = new THREE.Object3D;
-    this.boom.position.z = -this.coronaSafetyDistance;
+    this.boom.position.z = -this.boomLength;
     this.boom.add(this.camera);
 
     this.controls = new OrbitControls(this.camera, renderer.domElement);

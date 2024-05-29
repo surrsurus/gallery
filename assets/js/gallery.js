@@ -113,7 +113,7 @@ function animate() {
       const b = camera_rig.boom.position.clone();
 
       const dir = a.clone().sub(b).normalize();
-      const dis = a.distanceTo(b) - camera_rig.coronaSafetyDistance;
+      const dis = a.distanceTo(b) - camera_rig.boomLength;
 
       camera_rig.boom.position.addScaledVector(dir, dis);
       camera_rig.controls.target.copy(me.position)
@@ -121,7 +121,7 @@ function animate() {
     }
 
     // Send updates if we are getting updates from the player
-    if (Object.values(keys).some(v => v === true)) {
+    if (Object.values(keys).some(key => key === true)) {
       channel.push("update_position", {
         id: my_id,
         x: me.position.x,
