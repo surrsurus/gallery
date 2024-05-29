@@ -54,11 +54,11 @@ export class Light extends Drawable {
 }
 
 export class CameraRig {
-  constructor() {
+  constructor(fov = 70, boomLength = 0.15) {
     // sets how long the camera boom is. the camera will be allowed to go below this, but won't go above it
-    this.boomLength = 0.15;
+    this.boomLength = boomLength;
     
-    this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10);
+    this.camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.01);
     this.camera.position.set(0, 0.3, -1);
     this.camera.lookAt(scene.position);
 
