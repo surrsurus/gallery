@@ -117,7 +117,7 @@ function animate() {
       const a = new THREE.Vector3;
       const b = new THREE.Vector3;
 
-      a.lerp(current_players[my_id].drawable.position, 0.4);
+      a.lerp(current_players[my_id].drawable.position, 1);
       b.copy(camera_controls.boom.position);
 
       const dir = a.clone().sub(b).normalize();
