@@ -53,7 +53,7 @@ export class Light extends Drawable {
   }
 }
 
-export class CameraControls {
+export class CameraRig {
   constructor() {
     this.coronaSafetyDistance = 0.3;
 
