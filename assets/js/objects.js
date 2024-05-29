@@ -54,7 +54,7 @@ export class Light extends Drawable {
 }
 
 export class CameraRig {
-  constructor(position, lookAt = scene.position, fov = 70, boomLength = 0.15, near = 0.01, far = undefined) {
+  constructor(position, lookAt = scene.position, fov = 90, boomLength = 0.15, near = 0.01, far = undefined) {
     // sets how long the camera boom is. the camera will be allowed to go below this, but won't go above it
     this.boomLength = boomLength;
     
