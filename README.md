@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-This project uses [ASDF](https://asdf-vm.com/) to manage dependencies
+This project uses [ASDF](https://asdf-vm.com/) to manage Erlang, Elixir, and Node versions
 
 ### Installing
 
