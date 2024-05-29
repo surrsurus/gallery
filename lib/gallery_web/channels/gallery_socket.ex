@@ -19,6 +19,8 @@ defmodule GalleryWeb.GallerySocket do
   # performing token verification on connect.
   @impl true
   def connect(_params, socket, _connect_info) do
+    # TODO: We could have persistent player profiles if we saved the player ID to a session cookie
+    # the JS could just send the ID back to us and we'd pull the player's data from postgres via ecto
     {:ok, assign(socket, :player_id, Ecto.UUID.generate())}
   end
 
