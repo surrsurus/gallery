@@ -78,7 +78,7 @@ function prepareCanvas() {
 
   window.addEventListener('resize', (_e) => {
     camera_rig.resize();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(canvasHtml.offsetWidth, canvasHtml.offsetHeight);
   });
 
   animate();
