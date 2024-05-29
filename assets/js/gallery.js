@@ -5,7 +5,7 @@ import { scene, renderer } from './scene.js';
 import { CameraRig, Light, Player } from './objects.js';
 
 const fpsMeter = new Stats();
-const camera_rig = new CameraRig();
+const camera_rig = new CameraRig(new THREE.Vector3(0, 0.3, -1));
 const mainLight = new Light(new THREE.Vector3(0, 5, -10)); // main light in the scene
 
 // keymap of what keys are currently pressed

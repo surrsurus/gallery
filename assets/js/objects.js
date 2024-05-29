@@ -13,7 +13,7 @@ class Drawable {
   }
 
   addToScene() {
-    scene.add(this.drawable)
+    scene.add(this.drawable);
   }
 
   removeFromScene() {
@@ -49,18 +49,18 @@ export class Player extends Drawable {
 export class Light extends Drawable {
   constructor(position, color = 0xffffff, intensity = 1, distance = 0) {
     const light = new THREE.PointLight(color, intensity, distance);
-    super(light, position)
+    super(light, position);
   }
 }
 
 export class CameraRig {
-  constructor(fov = 70, boomLength = 0.15) {
+  constructor(position, lookAt = scene.position, fov = 70, boomLength = 0.15, near = 0.01, far = undefined) {
     // sets how long the camera boom is. the camera will be allowed to go below this, but won't go above it
     this.boomLength = boomLength;
     
-    this.camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.01);
-    this.camera.position.set(0, 0.3, -1);
-    this.camera.lookAt(scene.position);
+    this.camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
+    this.camera.position.copy(position);
+    this.camera.lookAt(lookAt);
 
     this.boom = new THREE.Object3D;
     this.boom.position.z = -this.boomLength;
