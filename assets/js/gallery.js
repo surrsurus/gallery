@@ -13,7 +13,7 @@ const camera_rig = new CameraRig(new THREE.Vector3(0, 0.3, -1));
 const mainLight = new Light(new THREE.Vector3(0, 5, -10)); // main light in the scene
 const brightenLight = new TWEEN.Tween(mainLight.drawable)
   .to({ intensity: 500 }, 5000)
-  .easing(TWEEN.Easing.Quadratic.In)
+  .easing(TWEEN.Easing.Quadratic.In);
 
 // keymap of what keys are currently pressed
 const keys = {
@@ -109,7 +109,7 @@ function animate() {
     if (keys.s) speed -= 0.01 * speedMod;
     if (keys.a) me.rotateY(0.05);
     if (keys.d) me.rotateY(-0.05);
-    if (speed != 0.0) move(me, speed)
+    if (speed != 0.0) move(me, speed);
 
     if (keys.space && me.position.y == 0) jump(me);
 
@@ -146,7 +146,7 @@ function move(me, speed) {
   const dis = after.distanceTo(before);
 
   camera_rig.camera.position.addScaledVector(dir, dis);
-  camera_rig.controls.target.copy(after)
+  camera_rig.controls.target.copy(after);
 }
 
 function jump(me) {
@@ -163,5 +163,5 @@ function jump(me) {
         .start()
         .onUpdate(() => sendPosition(me))
         .onComplete(() => animations.jumping = false)
-    })
+    });
 }
