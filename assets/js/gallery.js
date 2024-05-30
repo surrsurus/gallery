@@ -125,17 +125,19 @@ function sendPosition(me) {
 }
 
 function move(me, speed) {
-  const a = me.position.clone();
-  a.y = 0;
+  const before = me.position.clone();
   me.translateZ(speed);
-  const b = me.position.clone();
-  b.y = 0;
+  const after = me.position.clone();
 
-  const dir = b.clone().sub(a).normalize();
-  const dis = b.distanceTo(a);
+  // Don't capture y-axis movement
+  before.y = 0;
+  after.y = 0;
+
+  const dir = after.clone().sub(before).normalize();
+  const dis = after.distanceTo(before);
 
   camera_rig.camera.position.addScaledVector(dir, dis);
-  camera_rig.controls.target.copy(b)
+  camera_rig.controls.target.copy(after)
 }
 
 function jump(me) {
