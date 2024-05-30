@@ -26,21 +26,16 @@ defmodule GalleryWeb.GalleryChannel do
 
   @spec handle_in(
           String.t(),
-          %{
-            required(:x) => number(),
-            required(:y) => number(),
-            required(:z) => number(),
-            required(:rot) => map()
-          },
+          %{required(:pos) => map(), required(:rot) => map()},
           Phoenix.Socket.t()
         ) :: {:noreply, Phoenix.Socket.t()}
   def handle_in(
         "update_position",
-        %{"x" => dx, "y" => dy, "z" => dz, "rot" => rot} = payload,
+        %{"pos" => pos, "rot" => rot} = payload,
         %{assigns: %{player_id: player_id}} = socket
       ) do
     player = PlayerCache.get(player_id)
-    updated_player = %{player | x: dx, y: dy, z: dz, rot: rot}
+    updated_player = %{player | pos: pos, rot: rot}
     PlayerCache.insert(updated_player)
 
     broadcast!(socket, "player_moved", payload)

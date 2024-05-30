@@ -27,7 +27,7 @@ defmodule Gallery.PlayerCacheTest do
       assert PlayerCache.get(player.id) == player
 
       # Player moves
-      new_player = %{player | x: 5}
+      new_player = %{player | pos: %{x: 1, y: 0, z: 0}}
 
       assert PlayerCache.insert(new_player) == true
       assert PlayerCache.get(player.id) == new_player

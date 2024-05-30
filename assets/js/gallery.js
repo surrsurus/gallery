@@ -3,11 +3,14 @@ import * as TWEEN from '@tweenjs/tween.js'
 import Stats from 'stats.js'
 import { channel } from './gallery_socket.js';
 import { scene, renderer } from './scene.js';
-import { CameraRig, Light, Player } from './objects.js';
+import { CameraRig, Light, PlayerRegistry } from './objects.js';
 
 const fpsMeter = new Stats();
 const camera_rig = new CameraRig(new THREE.Vector3(0, 0.3, -1));
 const mainLight = new Light(new THREE.Vector3(0, 5, -10)); // main light in the scene
+const brightenLight = new TWEEN.Tween(mainLight.drawable)
+  .to({ intensity: 500 }, 5000)
+  .easing(TWEEN.Easing.Quadratic.In);
 
 // keymap of what keys are currently pressed
 const keys = {
@@ -19,40 +22,29 @@ const keys = {
   space: false,
 };
 
-let my_id = null; // store player id
-let current_players = {}; // store players met during the current session
+// what animations are currently playing
+const animations = {
+  jumping: false,
+};
+
+let player_registry = null;
 
 // only start up the three.js scene if we get the sign we're all connected from the phoenix live page
 window.addEventListener("phx:start_scene", (_e) => {
-  // on join we get our id, and the list of current players
   channel.join()
     .receive("ok", ({ players: players, id: id }) => {
-      // we prepare to render the other players, then tell the server we're ready to be rendered ourselves
-      players.map(addNewPlayer);
-      my_id = id;
+      player_registry = new PlayerRegistry(id, players);
 
       prepareCanvas();
 
       channel.push("ready", { id: id });
     })
-    .receive("error", resp => { console.log("Unable to join", resp) });
+    .receive("error", resp => console.log("Unable to join", resp));
 });
 
-// new player ready, start rendering them
-channel.on("player_joined", ({ player: player_data }) => addNewPlayer(player_data));
-
-// player left, stop rendering them
-channel.on("player_left", ({ id: id }) => {
-  current_players[id].removeFromScene();
-  delete current_players[id];
-});
-
-// player position changed, update them
-channel.on("player_moved", ({ id: id, x: x, y: y, z: z, rot: rot }) => {
-  if (my_id != id) {
-    current_players[id].updatePosition(x, y, z, rot);
-  }
-});
+channel.on("player_joined", ({ player: player }) => player_registry.add(player));
+channel.on("player_left", ({ id: id }) => player_registry.remove(id));
+channel.on("player_moved", ({ id: id, pos: pos, rot: rot }) => player_registry.updatePlayer(id, pos, rot));
 
 function prepareCanvas() {
   const statHtml = document.getElementById("stats-canvas");
@@ -70,18 +62,23 @@ function prepareCanvas() {
 
   document.body.addEventListener('keydown', (e) => {
     const key = e.code.replace('Key', '').toLowerCase();
-    if (keys[key] !== undefined) { keys[key] = true; }
+    if (keys[key] !== undefined) keys[key] = true;
   });
 
   document.body.addEventListener('keyup', (e) => {
     const key = e.code.replace('Key', '').toLowerCase();
-    if (keys[key] !== undefined) { keys[key] = false; }
+    if (keys[key] !== undefined) keys[key] = false;
   });
+
+  canvas.addEventListener('blur', (_e) => Object.keys(keys).forEach(key => keys[key] = false));
+  window.addEventListener('blur', (_e) => Object.keys(keys).forEach(key => keys[key] = false));
 
   window.addEventListener('resize', (_e) => {
     camera_rig.resize();
     renderer.setSize(canvasHtml.offsetWidth, canvasHtml.offsetHeight);
   });
+
+  brightenLight.start();
 
   animate();
 }
@@ -93,71 +90,24 @@ function animate() {
   camera_rig.update();
   TWEEN.update();
 
-  // grow light in intensity when first loading
-  // TODO: would be cool if i could do this and not constatly 
-  // check this as part of my animation loop after it's finished
-  if (mainLight.drawable.intensity < 500) {
-    mainLight.drawable.intensity += 1;
-  }
-
-  if (current_players[my_id]) {
-    const me = current_players[my_id].drawable;
+  if (player_registry.me()) {
+    const me = player_registry.me().drawable;
     let speed = 0.0;
     let speedMod = 1.0;
 
-    if (keys.shiftleft) { speedMod = 2.5; }
-    if (keys.w) { speed = 0.01 * speedMod; } else if (keys.s) { speed = -0.01 * speedMod; }
-    if (keys.a) { me.rotateY(0.05); } else if (keys.d) { me.rotateY(-0.05); }
+    if (keys.shiftleft) speedMod = 2.5;
+    if (keys.w) speed += 0.01 * speedMod;
+    if (keys.s) speed -= 0.01 * speedMod;
+    if (keys.a) me.rotateY(0.05);
+    if (keys.d) me.rotateY(-0.05);
+    if (speed != 0.0) move(me, speed)
 
-    if (keys.space && me.position.y == 0) {
-      new TWEEN.Tween(me.position)
-        .to(
-          {
-            y: me.position.y + 0.3,
-          },
-          250
-        )
-        .easing(TWEEN.Easing.Cubic.Out)
-        .start()
-        .onComplete(() => {
-          new TWEEN.Tween(me.position)
-            .to(
-              {
-                y: 0,
-              },
-              250
-            )
-            .easing(TWEEN.Easing.Cubic.In)
-            .start()
-        })
-    }
+    if (keys.space && me.position.y == 0) jump(me);
 
-    if (speed != 0.0) {
-      me.translateZ(speed);
-
-      const myFloorPos = me.position.clone();
-      myFloorPos.y = 0;
-
-      const a = myFloorPos.clone();
-      const b = camera_rig.boom.position.clone();
-
-      const dir = a.clone().sub(b).normalize();
-      const dis = a.distanceTo(b) - camera_rig.boomLength;
-
-      camera_rig.boom.position.addScaledVector(dir, dis);
-      camera_rig.controls.target.copy(myFloorPos)
-      camera_rig.camera.lookAt(myFloorPos);
-    }
-
-    // Send updates if we are getting updates from the player
-    if (Object.values(keys).some(key => key === true)) {
-      channel.push("update_position", {
-        id: my_id,
-        x: me.position.x,
-        y: me.position.y,
-        z: me.position.z,
-        rot: me.rotation
-      });
+    // Send updates if we are getting updates from the player, but not if we're animating
+    // (animations send their own updates)
+    if (Object.values(keys).some(key => key === true) && !Object.values(animations).some(animation => animation === true)) {
+      sendPosition(me);
     }
   }
 
@@ -166,6 +116,44 @@ function animate() {
   fpsMeter.end();
 }
 
-function addNewPlayer(player_data) {
-  current_players[player_data.id] = new Player(player_data);
+function sendPosition(me) {
+  channel.push("update_position", {
+    id: player_registry.my_id,
+    pos: me.position,
+    rot: { x: me.rotation.x, y: me.rotation.y, z: me.rotation.z }
+  });
+}
+
+function move(me, speed) {
+  me.translateZ(speed);
+
+  const myFloorPos = me.position.clone();
+  myFloorPos.y = 0;
+
+  const a = myFloorPos.clone();
+  const b = camera_rig.boom.position.clone();
+
+  const dir = a.clone().sub(b).normalize();
+  const dis = a.distanceTo(b) - camera_rig.boomLength;
+
+  camera_rig.boom.position.addScaledVector(dir, dis);
+  camera_rig.controls.target.copy(myFloorPos)
+  camera_rig.camera.lookAt(myFloorPos);
+}
+
+function jump(me) {
+  new TWEEN.Tween(me.position)
+    .to({ y: me.position.y + 0.3 }, 250)
+    .easing(TWEEN.Easing.Cubic.Out)
+    .start()
+    .onStart(() => animations.jumping = true)
+    .onUpdate(() => sendPosition(me))
+    .onComplete(() => {
+      new TWEEN.Tween(me.position)
+        .to({ y: 0, }, 250)
+        .easing(TWEEN.Easing.Cubic.In)
+        .start()
+        .onUpdate(() => sendPosition(me))
+        .onComplete(() => animations.jumping = false)
+    })
 }
