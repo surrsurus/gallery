@@ -125,20 +125,17 @@ function sendPosition(me) {
 }
 
 function move(me, speed) {
+  const a = me.position.clone();
+  a.y = 0;
   me.translateZ(speed);
+  const b = me.position.clone();
+  b.y = 0;
 
-  const myFloorPos = me.position.clone();
-  myFloorPos.y = 0;
+  const dir = b.clone().sub(a).normalize();
+  const dis = b.distanceTo(a);
 
-  const a = myFloorPos.clone();
-  const b = camera_rig.boom.position.clone();
-
-  const dir = a.clone().sub(b).normalize();
-  const dis = a.distanceTo(b) - camera_rig.boomLength;
-
-  camera_rig.boom.position.addScaledVector(dir, dis);
-  camera_rig.controls.target.copy(myFloorPos)
-  camera_rig.camera.lookAt(myFloorPos);
+  camera_rig.camera.position.addScaledVector(dir, dis);
+  camera_rig.controls.target.copy(b)
 }
 
 function jump(me) {
