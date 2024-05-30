@@ -75,8 +75,9 @@ function prepareCanvas() {
     if (keys[key] !== undefined) keys[key] = false;
   });
 
-  canvas.addEventListener('blur', (_e) => Object.keys(keys).forEach(key => keys[key] = false));
-  window.addEventListener('blur', (_e) => Object.keys(keys).forEach(key => keys[key] = false));
+  const disableInput = (_e) => Object.keys(keys).forEach(key => keys[key] = false);
+  canvas.addEventListener('blur', disableInput);
+  window.addEventListener('blur', disableInput);
 
   window.addEventListener('resize', (_e) => {
     camera_rig.resize();
