@@ -18,7 +18,7 @@ const keys = {
   s: false,
   d: false,
   w: false,
-  shiftleft: false,
+  shiftLeft: false,
   space: false,
 };
 
@@ -95,7 +95,7 @@ function animate() {
     let speed = 0.0;
     let speedMod = 1.0;
 
-    if (keys.shiftleft) speedMod = 2.5;
+    if (keys.shiftLeft) speedMod = 2.5;
     if (keys.w) speed += 0.01 * speedMod;
     if (keys.s) speed -= 0.01 * speedMod;
     if (keys.a) me.rotateY(0.05);
@@ -106,9 +106,9 @@ function animate() {
 
     // Send updates if we are getting updates from the player, but not if we're animating
     // (animations send their own updates)
-    if (Object.values(keys).some(key => key === true) && !Object.values(animations).some(animation => animation === true)) {
-      sendPosition(me);
-    }
+    const anyKeysPressed = Object.values(keys).some(key => key === true);
+    const notPlayingAnimations = !Object.values(animations).some(animation => animation === true);
+    if (anyKeysPressed && notPlayingAnimations) sendPosition(me);
   }
 
   renderer.render(scene, camera_rig.camera);
@@ -147,7 +147,7 @@ function jump(me) {
     .onUpdate(() => sendPosition(me))
     .onComplete(() => {
       new TWEEN.Tween(me.position)
-        .to({ y: 0, }, 250)
+        .to({ y: 0 }, 250)
         .easing(TWEEN.Easing.Cubic.In)
         .start()
         .onUpdate(() => sendPosition(me))
