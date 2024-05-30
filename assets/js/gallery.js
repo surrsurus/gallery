@@ -5,12 +5,15 @@ import { channel } from './gallery_socket.js';
 import { scene, renderer } from './scene.js';
 import { CameraRig, Light, PlayerRegistry } from './objects.js';
 
+const gridHelper = new THREE.GridHelper(40, 40);
+const axesHelper = new THREE.AxesHelper();
+
 const fpsMeter = new Stats();
 const camera_rig = new CameraRig(new THREE.Vector3(0, 0.3, -1));
 const mainLight = new Light(new THREE.Vector3(0, 5, -10)); // main light in the scene
 const brightenLight = new TWEEN.Tween(mainLight.drawable)
   .to({ intensity: 500 }, 5000)
-  .easing(TWEEN.Easing.Quadratic.In);
+  .easing(TWEEN.Easing.Quadratic.In)
 
 // keymap of what keys are currently pressed
 const keys = {
@@ -18,7 +21,7 @@ const keys = {
   s: false,
   d: false,
   w: false,
-  shiftLeft: false,
+  shiftleft: false,
   space: false,
 };
 
@@ -50,6 +53,8 @@ function prepareCanvas() {
   const statHtml = document.getElementById("stats-canvas");
   const canvasHtml = document.getElementById("gallery-canvas");
 
+  renderer.setSize(canvasHtml.offsetWidth, canvasHtml.offsetHeight);
+
   // and canvas and let it be focusable to capture key events
   const canvas = canvasHtml.appendChild(renderer.domElement);
   canvas.tabIndex = 1;
@@ -80,6 +85,9 @@ function prepareCanvas() {
 
   brightenLight.start();
 
+  scene.add(gridHelper);
+  scene.add(axesHelper);
+
   animate();
 }
 
@@ -95,7 +103,7 @@ function animate() {
     let speed = 0.0;
     let speedMod = 1.0;
 
-    if (keys.shiftLeft) speedMod = 2.5;
+    if (keys.shiftleft) speedMod = 2.5;
     if (keys.w) speed += 0.01 * speedMod;
     if (keys.s) speed -= 0.01 * speedMod;
     if (keys.a) me.rotateY(0.05);
