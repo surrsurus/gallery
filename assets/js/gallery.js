@@ -129,9 +129,7 @@ function animate() {
     if (keys.space && me.drawable.position.y == 0) jump(me);
 
     // Testing: Check collision
-    if (player_registry.checkCollision()) {
-      move(me, -speed - 0.01);
-    }
+    if (player_registry.currentlyColliding()) move(me, -speed - 0.01);
 
     // Send updates if we are getting updates from the player, but not if we're animating
     // (animations send their own updates)

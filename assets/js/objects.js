@@ -62,7 +62,7 @@ export class PlayerRegistry {
     }
   }
 
-  checkCollision() {
+  currentlyColliding() {
     const all_players_but_me = Object.values(this.players).map((player) => player.drawable);
 
     for (let vertexIndex = 0; vertexIndex < this.me.drawable.geometry.attributes.position.array.length; vertexIndex += 3) {
