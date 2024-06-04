@@ -27,7 +27,7 @@ defmodule Gallery.Player do
     changeset(%{
       id: id,
       color: RandomColor.hex(),
-      pos: %{x: 0, y: 0, z: 0},
+      pos: %{x: :rand.uniform(3), y: 0, z: :rand.uniform(3)},
       rot: %{x: 0, y: 0, z: 0},
       created_at: DateTime.utc_now()
     })
