@@ -1,7 +1,6 @@
 defmodule GalleryWeb.GalleryChannelTest do
   use GalleryWeb.ChannelCase
 
-  alias Gallery.Player
   alias Gallery.PlayerCache
   alias GalleryWeb.GalleryChannel
   alias GalleryWeb.GallerySocket
@@ -12,33 +11,30 @@ defmodule GalleryWeb.GalleryChannelTest do
     setup do
       # Create and populate ETS
       PlayerCache.create()
-      player = Player.new!(@id)
-      PlayerCache.insert(player)
 
-      {:ok, _, socket} = join()
+      # Joining inserts our player
+      {:ok, %{players: _players, you: player}, socket} = join()
 
       %{player: player, socket: socket}
     end
 
     test "supports joins", %{player: player} do
-      assert {:ok, %{id: @id, players: players}, _socket} = join()
+      assert {:ok, %{you: you, players: players}, _socket} = join()
 
       eventually assert Enum.sort_by(players, & &1.created_at, Time) == [player]
+      assert you.id == player.id
     end
 
-    test "prepares the cache when players ready up", %{player: player, socket: socket} do
-      # As to not affect the test beforehand
-      PlayerCache.remove(@id)
-      assert PlayerCache.get(@id) == nil
-
-      push(socket, "ready", %{"id" => @id})
+    test "broadcasts join to others when players ready up", %{player: player, socket: socket} do
+      push(socket, "ready", %{"id" => player.id})
 
       eventually assert PlayerCache.get(@id)
       assert_broadcast "player_joined", %{"player" => ready_player}
+      refute_reply "player_joined", %{}
       assert ready_player.id == player.id
     end
 
-    test "updates the cache and broadcasts updates on request", %{socket: socket} do
+    test "updates the cache and broadcasts updates to others on request", %{socket: socket} do
       push(socket, "update_position", %{
         "id" => @id,
         "pos" => %{"x" => 0, "y" => 0, "z" => 0},
@@ -50,6 +46,8 @@ defmodule GalleryWeb.GalleryChannelTest do
         "pos" => %{"x" => 0, "y" => 0, "z" => 0},
         "rot" => %{"x" => 0, "y" => 0, "z" => 0}
       }
+
+      refute_reply "update_position", %{}
     end
 
     test "handles unexpected messages from players", %{socket: socket} do
