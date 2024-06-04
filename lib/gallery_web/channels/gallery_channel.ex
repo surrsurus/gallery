@@ -1,4 +1,30 @@
 defmodule GalleryWeb.GalleryChannel do
+  @moduledoc """
+  GalleryChannel - Receive and broadcast updates from players
+
+  # Events
+
+  ## Incoming Messages
+
+  `join` - Joining this channel registers you in the player cache.
+           If the join is successful, you'll be given the list of current players and your current player in the payload
+
+
+  `ready` - Signal to the server that you have received the player data from joining. All other players are given your player payload
+            to begin rendering you on their clients. Fires `player_joined` back to the clients.
+
+  `update_position` - Signal to the server that you have changed your position and/or rotation. All other players are given your
+                      updated player payload. Fires `player_moved` back to the client.
+
+
+  ## Outgoing Messages
+
+  `player_joined` - Fired when a new player joins the channel. You will not receive your `player_joined` events you trigger.
+
+  `player_moved` - Fired when a player updates their position and/or rotation. You will not receive `player_moved` events you trigger.
+
+  `player_left` - On disconnect, all players will be notified of your departure so you can stop being rendered on their clients.
+  """
   use Phoenix.Channel
 
   alias Gallery.PlayerCache
