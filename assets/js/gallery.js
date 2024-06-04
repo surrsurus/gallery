@@ -113,22 +113,23 @@ function animate() {
   camera_rig.update();
   TWEEN.update();
 
-  if (player_registry.me()) {
-    const me = player_registry.me().drawable;
+  const me = player_registry.me;
+
+  if (me) { 
     let speed = 0.0;
     let speedMod = 1.0;
 
     if (keys.shiftleft) speedMod = 2.5;
     if (keys.w) speed += 0.01 * speedMod;
     if (keys.s) speed -= 0.01 * speedMod;
-    if (keys.a) me.rotateY(0.05);
-    if (keys.d) me.rotateY(-0.05);
+    if (keys.a) me.drawable.rotateY(0.05);
+    if (keys.d) me.drawable.rotateY(-0.05);
     if (speed != 0.0) move(me, speed);
 
-    if (keys.space && me.position.y == 0) jump(me);
+    if (keys.space && me.drawable.position.y == 0) jump(me);
 
     // Testing: Check collision
-    if (checkCollision(me)) {
+    if (player_registry.checkCollision()) {
       move(me, -speed - 0.01);
     }
 
@@ -147,48 +148,32 @@ function animate() {
 function sendPosition(me) {
   channel.push("update_position", {
     id: player_registry.my_id,
-    pos: me.position,
-    rot: { x: me.rotation.x, y: me.rotation.y, z: me.rotation.z }
+    pos: me.drawable.position,
+    rot: { x: me.drawable.rotation.x, y: me.drawable.rotation.y, z: me.drawable.rotation.z }
   });
 }
 
 function move(me, speed) {
-  const before = me.position.clone();
-  me.translateZ(speed);
-  const after = me.position.clone();
+  const before = me.drawable.position.clone();
+  me.drawable.translateZ(speed);
+  const after = me.drawable.position.clone();
 
   camera_rig.moveTo(before, after);
 }
 
 function jump(me) {
-  new TWEEN.Tween(me.position)
-    .to({ y: me.position.y + 0.3 }, 250)
+  new TWEEN.Tween(me.drawable.position)
+    .to({ y: me.drawable.position.y + 0.3 }, 250)
     .easing(TWEEN.Easing.Cubic.Out)
     .start()
     .onStart(() => animations.jumping = true)
     .onUpdate(() => sendPosition(me))
     .onComplete(() => {
-      new TWEEN.Tween(me.position)
+      new TWEEN.Tween(me.drawable.position)
         .to({ y: 0 }, 250)
         .easing(TWEEN.Easing.Cubic.In)
         .start()
         .onUpdate(() => sendPosition(me))
         .onComplete(() => animations.jumping = false)
     });
-}
-
-function checkCollision(me) {
-  for (let vertexIndex = 0; vertexIndex < me.geometry.attributes.position.array.length; vertexIndex += 3) {
-    const localVertex = new THREE.Vector3().fromBufferAttribute(me.geometry.attributes.position, vertexIndex).clone();
-    const globalVertex = localVertex.applyMatrix4(me.matrix);
-    const directionVector = globalVertex.sub(me.position);
-
-    const ray = new THREE.Raycaster(me.position.clone(), directionVector.clone().normalize());
-    const collisionResults = ray.intersectObjects(player_registry.all_but_me());
-    if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
-      return true;
-    }
-  }
-
-  return false;
 }
