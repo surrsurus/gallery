@@ -30,7 +30,7 @@ defmodule GalleryWeb.GalleryChannelTest do
 
       eventually assert PlayerCache.get(@id)
       assert_broadcast "player_joined", %{"player" => ready_player}
-      refute_reply "player_joined", %{}
+      refute_push "player_joined", %{"player" => ^ready_player}
       assert ready_player.id == player.id
     end
 
@@ -47,7 +47,11 @@ defmodule GalleryWeb.GalleryChannelTest do
         "rot" => %{"x" => 0, "y" => 0, "z" => 0}
       }
 
-      refute_reply "update_position", %{}
+      refute_push "update_position", %{
+        "id" => @id,
+        "pos" => %{"x" => 0, "y" => 0, "z" => 0},
+        "rot" => %{"x" => 0, "y" => 0, "z" => 0}
+      }
     end
 
     test "handles unexpected messages from players", %{socket: socket} do
