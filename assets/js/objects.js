@@ -92,14 +92,40 @@ export class Light extends Drawable {
 }
 
 export class CameraRig {
-  constructor(position, lookAt = scene.position, fov = 90, near = 0.01, far = undefined) {
+  constructor(position = new THREE.Vector3(), lookAt = scene.position, fov = 90, near = 0.01, far = undefined) {
     this.camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, near, far);
     this.camera.position.copy(position);
-    this.camera.lookAt(lookAt);
+    this.lookAt(lookAt);
 
     this.controls = new OrbitControls(this.camera, renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.enablePan = false;
+  }
+
+  lookAt(position) {
+    this.camera.lookAt(position);
+  }
+
+  setTarget(position) {
+    this.controls.target.copy(position);
+  }
+
+  attachTo(position, offset) {
+    this.lookAt(position);
+    this.setTarget(position);
+    this.camera.position.copy(position).add(offset);
+  }
+
+  moveTo(before, after) {
+    // Don't capture y-axis movement
+    before.y = 0;
+    after.y = 0;
+
+    const dir = after.clone().sub(before).normalize();
+    const dis = after.distanceTo(before);
+
+    this.camera.position.addScaledVector(dir, dis);
+    this.setTarget(after);
   }
 
   resize() {
