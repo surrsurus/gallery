@@ -51,9 +51,9 @@ window.addEventListener("phx:start_scene", (_e) => {
     .receive("error", resp => console.log("Unable to join", resp));
 });
 
-channel.on("player_joined", ({ player: player }) => player_registry.add(player));
-channel.on("player_left", ({ id: id }) => player_registry.remove(id));
-channel.on("player_moved", ({ id: id, pos: pos, rot: rot }) => player_registry.updatePlayer(id, pos, rot));
+channel.on("player_joined", ({ player: player }) => {if (player_registry) player_registry.add(player);});
+channel.on("player_left", ({ id: id }) => {if (player_registry) player_registry.remove(id);});
+channel.on("player_moved", ({ id: id, pos: pos, rot: rot }) => {if (player_registry) player_registry.updatePlayer(id, pos, rot);});
 
 function prepareCanvas() {
   const statHtml = document.getElementById("stats-canvas");
