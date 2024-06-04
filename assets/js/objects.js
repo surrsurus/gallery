@@ -56,6 +56,16 @@ export class PlayerRegistry {
     this.players[player.id] = new Player(player);
   }
 
+  all_but_me() {
+    const all_but_me = [];
+    for (const [id, player] of Object.entries(this.players)) {
+      if (this.my_id != id)
+        all_but_me.push(player.drawable);
+    }
+
+    return Object.values(all_but_me);
+  }
+
   get(id) {
     return this.players[id];
   }

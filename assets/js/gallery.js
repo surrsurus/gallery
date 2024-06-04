@@ -113,6 +113,9 @@ function animate() {
 
     if (keys.space && me.position.y == 0) jump(me);
 
+    // Testing: Check collision
+    checkCollision(me);
+
     // Send updates if we are getting updates from the player, but not if we're animating
     // (animations send their own updates)
     const anyKeysPressed = Object.values(keys).some(key => key === true);
@@ -135,6 +138,7 @@ function sendPosition(me) {
 
 function move(me, speed) {
   const before = me.position.clone();
+  last_pos = before;
   me.translateZ(speed);
   const after = me.position.clone();
 
@@ -164,4 +168,18 @@ function jump(me) {
         .onUpdate(() => sendPosition(me))
         .onComplete(() => animations.jumping = false)
     });
+}
+
+function checkCollision(me) {
+  for (let vertexIndex = 0; vertexIndex < me.geometry.attributes.position.array.length; vertexIndex++) {
+    const localVertex = new THREE.Vector3().fromBufferAttribute(me.geometry.attributes.position, vertexIndex).clone();
+    const globalVertex = localVertex.applyMatrix4(me.matrix);
+    const directionVector = globalVertex.sub(me.position);
+
+    const ray = new THREE.Raycaster(me.position, directionVector.clone().normalize());
+    const collisionResults = ray.intersectObjects(player_registry.all_but_me());
+    if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() && last_pos) {
+      console.log("collision");
+    }
+  }
 }
