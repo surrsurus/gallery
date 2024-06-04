@@ -10,10 +10,12 @@ const axesHelper = new THREE.AxesHelper();
 
 const fpsMeter = new Stats();
 const camera_rig = new CameraRig(new THREE.Vector3(0, 0.3, -1));
-const mainLight = new Light(new THREE.Vector3(0, 5, -10)); // main light in the scene
-const brightenLight = new TWEEN.Tween(mainLight.drawable)
-  .to({ intensity: 500 }, 5000)
-  .easing(TWEEN.Easing.Quadratic.In);
+const mainLight = new Light(new THREE.Vector3(0, 5, -10), 0xffffff, 500); // main light in the scene
+
+// Turns light on over time, disabled because there's no point right now
+// const brightenLight = new TWEEN.Tween(mainLight.drawable)
+//   .to({ intensity: 500 }, 5000)
+//   .easing(TWEEN.Easing.Quadratic.In);
 
 // keymap of what keys are currently pressed
 const keys = {
@@ -84,7 +86,7 @@ function prepareCanvas() {
     renderer.setSize(canvasHtml.offsetWidth, canvasHtml.offsetHeight);
   });
 
-  brightenLight.start();
+  // brightenLight.start();
 
   scene.add(gridHelper);
   scene.add(axesHelper);
