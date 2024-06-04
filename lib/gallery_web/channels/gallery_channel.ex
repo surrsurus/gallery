@@ -6,21 +6,26 @@ defmodule GalleryWeb.GalleryChannel do
 
   require Logger
 
+  intercept ["player_joined", "player_moved"]
+
   @room "gallery:main"
 
   @spec join(String.t(), map(), Phoenix.Socket.t()) ::
-          {:ok, %{id: String.t(), players: [Player.t()]}, Phoenix.Socket.t()}
+          {:ok, %{players: [Player.t()], you: Player.t()}, Phoenix.Socket.t()}
   def join(@room, %{}, %{assigns: %{player_id: player_id}} = socket) do
-    {:ok, %{players: PlayerCache.all(), id: player_id}, socket}
+    existing_players = PlayerCache.all()
+    incoming_player = Player.new!(player_id)
+    PlayerCache.insert(incoming_player)
+
+    {:ok, %{players: existing_players, you: incoming_player}, socket}
   end
 
   @spec handle_in(String.t(), %{required(:id) => String.t()}, Phoenix.Socket.t()) ::
           {:noreply, Phoenix.Socket.t()}
   def handle_in("ready", %{"id" => player_id}, %{assigns: %{player_id: player_id}} = socket) do
-    incoming_player = Player.new!(player_id)
-    PlayerCache.insert(incoming_player)
+    player = PlayerCache.get(player_id)
 
-    broadcast!(socket, "player_joined", %{"player" => incoming_player})
+    broadcast!(socket, "player_joined", %{"player" => player})
     {:noreply, socket}
   end
 
@@ -48,6 +53,34 @@ defmodule GalleryWeb.GalleryChannel do
       "[GalleryChannel] Player #{player_id} sent to #{event} an unknown response: #{inspect(payload)}"
     )
 
+    {:noreply, socket}
+  end
+
+  def handle_out(
+        "player_joined",
+        %{"player" => player} = payload,
+        %{assigns: %{player_id: player_id}} = socket
+      )
+      when player.id != player_id do
+    push(socket, "player_joined", payload)
+    {:noreply, socket}
+  end
+
+  def handle_out("player_joined", _payload, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_out(
+        "player_moved",
+        %{"id" => id} = payload,
+        %{assigns: %{player_id: player_id}} = socket
+      )
+      when id != player_id do
+    push(socket, "player_moved", payload)
+    {:noreply, socket}
+  end
+
+  def handle_out("player_moved", _payload, socket) do
     {:noreply, socket}
   end
 

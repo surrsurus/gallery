@@ -36,30 +36,22 @@ const animations = {
 
 let player_registry = null;
 
-// request existing players and our player ID to build our registry, then ready up
+// request existing players and ourselves, then ready up
 window.addEventListener("phx:start_scene", (_e) => {
   channel.join()
-    .receive("ok", ({ players: players, id: id }) => {
-      player_registry = new PlayerRegistry(id, players);
+    .receive("ok", ({ players: players, you: me }) => {
+      player_registry = new PlayerRegistry(players, me);
 
-      channel.push("ready", { id: id });
+      camera_rig.attachTo(me.pos, camera_offset);
+
+      prepareCanvas();
+
+      channel.push("ready", { id: me.id });
     })
     .receive("error", resp => console.log("Unable to join", resp));
 });
 
-// register incoming players
-channel.on("player_joined", ({ player: player }) => {
-  // if the incoming player is us, we set up our canvas. 
-  // no point doing this earlier since we can't control an avatar that isn't in the scene
-  if (player.id == player_registry.my_id) {
-    // Tie the camera rig to the player and prep the canvas
-    camera_rig.attachTo(player.pos, camera_offset);
-    prepareCanvas();
-  }
-
-  player_registry.add(player)
-});
-
+channel.on("player_joined", ({ player: player }) => player_registry.add(player));
 channel.on("player_left", ({ id: id }) => player_registry.remove(id));
 channel.on("player_moved", ({ id: id, pos: pos, rot: rot }) => player_registry.updatePlayer(id, pos, rot));
 
@@ -145,7 +137,7 @@ function animate() {
 
 function sendPosition(me) {
   channel.push("update_position", {
-    id: player_registry.my_id,
+    id: player_registry.me.id,
     pos: me.drawable.position,
     rot: { x: me.drawable.rotation.x, y: me.drawable.rotation.y, z: me.drawable.rotation.z }
   });

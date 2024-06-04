@@ -46,16 +46,15 @@ class Player extends Drawable {
 }
 
 export class PlayerRegistry {
-  constructor(my_id, players) {
+  constructor(players, me) {
     this.players = {};
-    this.me = null;
-    this.my_id = my_id;
+    this.me = new Player(me);
 
-    players.map((player) => this.add(player));
+    players.map((player) => this.players[player.id] = new Player(player));
   }
 
   add(player) {
-    if (player.id == this.my_id) {
+    if (player.id == this.me.id) {
       this.me = new Player(player);
     } else {
       this.players[player.id] = new Player(player);
@@ -63,19 +62,21 @@ export class PlayerRegistry {
   }
 
   currentlyColliding() {
-    const all_players_but_me = Object.values(this.players).map((player) => player.drawable);
+    if (this.me) {
+      const all_players_but_me = Object.values(this.players).map((player) => player.drawable);
 
-    for (let vertexIndex = 0; vertexIndex < this.me.drawable.geometry.attributes.position.array.length; vertexIndex += 3) {
-      const localVertex = new THREE.Vector3().fromBufferAttribute(this.me.drawable.geometry.attributes.position, vertexIndex).clone();
-      const globalVertex = localVertex.applyMatrix4(this.me.drawable.matrix);
-      const directionVector = globalVertex.sub(this.me.drawable.position);
-  
-      const ray = new THREE.Raycaster(this.me.drawable.position.clone(), directionVector.clone().normalize());
-      const collisionResults = ray.intersectObjects(all_players_but_me);
-      if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length())
-        return true;
+      for (let vertexIndex = 0; vertexIndex < this.me.drawable.geometry.attributes.position.array.length; vertexIndex += 3) {
+        const localVertex = new THREE.Vector3().fromBufferAttribute(this.me.drawable.geometry.attributes.position, vertexIndex).clone();
+        const globalVertex = localVertex.applyMatrix4(this.me.drawable.matrix);
+        const directionVector = globalVertex.sub(this.me.drawable.position);
+
+        const ray = new THREE.Raycaster(this.me.drawable.position.clone(), directionVector.clone().normalize());
+        const collisionResults = ray.intersectObjects(all_players_but_me);
+        if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length())
+          return true;
+      }
     }
-  
+
     return false;
   }
 
@@ -85,7 +86,7 @@ export class PlayerRegistry {
   }
 
   updatePlayer(id, pos, rot) {
-    if (this.my_id != id) this.players[id].update(pos, rot);
+    this.players[id].update(pos, rot);
   }
 }
 
