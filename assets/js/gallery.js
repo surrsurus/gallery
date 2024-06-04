@@ -9,7 +9,8 @@ const gridHelper = new THREE.GridHelper(40, 40);
 const axesHelper = new THREE.AxesHelper();
 
 const fpsMeter = new Stats();
-const camera_rig = new CameraRig(new THREE.Vector3(0, 0.3, -1));
+const camera_rig = new CameraRig();
+const camera_offset = new THREE.Vector3(0, 0.3, -1);
 const mainLight = new Light(new THREE.Vector3(0, 5, -10), 0xffffff, 500); // main light in the scene
 
 // Turns light on over time, disabled because there's no point right now
@@ -34,20 +35,30 @@ const animations = {
 
 let player_registry = null;
 
-// only start up the three.js scene if we get the sign we're all connected from the phoenix live page
+// request existing players and our player ID to build our registry, then ready up
 window.addEventListener("phx:start_scene", (_e) => {
   channel.join()
     .receive("ok", ({ players: players, id: id }) => {
       player_registry = new PlayerRegistry(id, players);
-
-      prepareCanvas();
 
       channel.push("ready", { id: id });
     })
     .receive("error", resp => console.log("Unable to join", resp));
 });
 
-channel.on("player_joined", ({ player: player }) => player_registry.add(player));
+// register incoming players
+channel.on("player_joined", ({ player: player }) => {
+  // if the incoming player is us, we set up our canvas. 
+  // no point doing this earlier since we can't control an avatar that isn't in the scene
+  if (player.id == player_registry.my_id) {
+    // Tie the camera rig to the player and prep the canvas
+    camera_rig.attachTo(player.pos, camera_offset);
+    prepareCanvas();
+  }
+
+  player_registry.add(player)
+});
+
 channel.on("player_left", ({ id: id }) => player_registry.remove(id));
 channel.on("player_moved", ({ id: id, pos: pos, rot: rot }) => player_registry.updatePlayer(id, pos, rot));
 
@@ -116,7 +127,9 @@ function animate() {
     if (keys.space && me.position.y == 0) jump(me);
 
     // Testing: Check collision
-    checkCollision(me);
+    if (checkCollision(me)) {
+      move(me, -speed - 0.01);
+    }
 
     // Send updates if we are getting updates from the player, but not if we're animating
     // (animations send their own updates)
@@ -140,19 +153,10 @@ function sendPosition(me) {
 
 function move(me, speed) {
   const before = me.position.clone();
-  last_pos = before;
   me.translateZ(speed);
   const after = me.position.clone();
 
-  // Don't capture y-axis movement
-  before.y = 0;
-  after.y = 0;
-
-  const dir = after.clone().sub(before).normalize();
-  const dis = after.distanceTo(before);
-
-  camera_rig.camera.position.addScaledVector(dir, dis);
-  camera_rig.controls.target.copy(after);
+  camera_rig.moveTo(before, after);
 }
 
 function jump(me) {
@@ -173,15 +177,17 @@ function jump(me) {
 }
 
 function checkCollision(me) {
-  for (let vertexIndex = 0; vertexIndex < me.geometry.attributes.position.array.length; vertexIndex++) {
+  for (let vertexIndex = 0; vertexIndex < me.geometry.attributes.position.array.length; vertexIndex += 3) {
     const localVertex = new THREE.Vector3().fromBufferAttribute(me.geometry.attributes.position, vertexIndex).clone();
     const globalVertex = localVertex.applyMatrix4(me.matrix);
     const directionVector = globalVertex.sub(me.position);
 
-    const ray = new THREE.Raycaster(me.position, directionVector.clone().normalize());
+    const ray = new THREE.Raycaster(me.position.clone(), directionVector.clone().normalize());
     const collisionResults = ray.intersectObjects(player_registry.all_but_me());
-    if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() && last_pos) {
-      console.log("collision");
+    if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+      return true;
     }
   }
+
+  return false;
 }
