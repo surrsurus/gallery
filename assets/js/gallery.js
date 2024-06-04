@@ -11,7 +11,8 @@ const axesHelper = new THREE.AxesHelper();
 const fpsMeter = new Stats();
 const camera_rig = new CameraRig();
 const camera_offset = new THREE.Vector3(0, 0.3, -1);
-const mainLight = new Light(new THREE.Vector3(0, 5, -10), 0xffffff, 500); // main light in the scene
+
+new Light(new THREE.Vector3(0, 5, -10), 0xffffff, 500); // main light in the scene
 
 // Turns light on over time, disabled because there's no point right now
 // const brightenLight = new TWEEN.Tween(mainLight.drawable)
