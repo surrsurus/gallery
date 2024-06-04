@@ -31,7 +31,7 @@ class Drawable {
 
 class Player extends Drawable {
   constructor(player) {
-    const geometry = new THREE.BoxGeometry(0.19, 0.21, 0.19);
+    const geometry = new THREE.BoxGeometry(0.20, 0.20, 0.20);
     const material = new THREE.MeshLambertMaterial({ color: player.color });
 
     const position = new THREE.Vector3(player.pos.x, player.pos.y, player.pos.z);
@@ -54,11 +54,7 @@ export class PlayerRegistry {
   }
 
   add(player) {
-    if (player.id == this.me.id) {
-      this.me = new Player(player);
-    } else {
-      this.players[player.id] = new Player(player);
-    }
+    this.players[player.id] = new Player(player);
   }
 
   currentlyColliding() {
