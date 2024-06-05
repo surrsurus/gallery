@@ -11,6 +11,46 @@ The goal of this project is to leverage Phoenix's ability to build highly concur
 Each player's web browser connects to a Phoenix channel via a websocket that will broadcast updates about the other players as they occur in realtime. A nice part about this is we'll know exactly when a player enters and leaves the game. 
 In addition, each player's browser is also rendering those updates with Three.JS. These updates are processed every frame, resulting in a very low latency experience.
 
+## Sequence
+
+```mermaid
+sequenceDiagram
+    actor You
+    You->>/gallery: Hit endpoint
+    /gallery-)Browser: Initialize Three.JS Scene
+    Browser-)Gallery Channel: Join channel
+    activate Gallery Channel
+    Gallery Channel->>Gallery Channel: Create Player
+    Gallery Channel->>PlayerCache: Cache player
+    activate PlayerCache
+    PlayerCache-->>Gallery Channel: Retrieve all cached players
+    deactivate PlayerCache
+    Gallery Channel--)Browser: Send cached player data
+    deactivate Gallery Channel
+    Browser->>Browser: Register players, prepare canvas, start rendering
+    Browser-)Gallery Channel: Ready up
+    activate Gallery Channel
+    Gallery Channel--)Browser: Broadcasts your player to everyone else
+    deactivate Gallery Channel
+    
+
+    Note over /gallery,PlayerCache: Keydown Events
+    Browser->>Browser: Handle keydown events
+    Browser-)Gallery Channel: Update player
+    activate Gallery Channel
+    Gallery Channel->>PlayerCache: Update player
+    Gallery Channel--)Browser: Broadcasts your player updates to everyone else
+    deactivate Gallery Channel
+
+
+    Note over /gallery,PlayerCache: Disconnect
+    Browser-)Gallery Channel: Disconnect
+    activate Gallery Channel
+    Gallery Channel->>PlayerCache: Delete from cache
+    Gallery Channel--)Browser: Broadcasts disconnect
+    deactivate Gallery Channel
+```
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
