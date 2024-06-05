@@ -8,8 +8,7 @@ https://github.com/surrsurus/gallery/assets/9388076/78b817d5-1c4d-45f0-8ed6-f317
 
 The goal of this project is to leverage Phoenix's ability to build highly concurrent realtime applications to create a scalable 3D multiplayer game that doesn't need much server hardware to run. 
 
-Each player's web browser connects to a Phoenix channel via a websocket that will broadcast updates about the other players as they occur in realtime. A nice part about this is we'll know exactly when a player enters and leaves the game. 
-In addition, each player's browser is also rendering those updates with Three.JS. These updates are processed every frame, resulting in a very low latency experience.
+Each player's web browser connects to a Phoenix channel via a websocket that will broadcast updates about the other players as they occur in realtime. Each player's browser renders those updates with Three.JS. Updates are processed every frame, resulting in a very low latency experience.
 
 ## Sequence
 
