@@ -14,15 +14,15 @@ defmodule GalleryWeb.GalleryChannel do
             are given your player payload to begin rendering you on their clients. Fires `player_joined` back to the clients.
 
   `update_position` - Signal to the server that you have changed your position and/or rotation. All other
-                      players are given your updated player payload. Fires `player_moved` back to the client.
+                      players are given your updated player payload. Fires `player_updated` back to the client.
 
   ## Outgoing Messages
 
   `player_joined` - Fired when a new player joins the channel.
                     You will not receive your `player_joined` events you trigger.
 
-  `player_moved` - Fired when a player updates their position and/or rotation.
-                   You will not receive `player_moved` events you trigger.
+  `player_updated` - Fired when a player updates their position and/or rotation.
+                   You will not receive `player_updated` events you trigger.
 
   `player_left` - On disconnect, all players will be notified of your departure so you can stop being rendered on their clients.
   """
@@ -33,7 +33,7 @@ defmodule GalleryWeb.GalleryChannel do
 
   require Logger
 
-  intercept ["player_joined", "player_moved"]
+  intercept ["player_joined", "player_updated"]
 
   @room "gallery:main"
 
@@ -69,7 +69,7 @@ defmodule GalleryWeb.GalleryChannel do
     updated_player = %{player | pos: pos, rot: rot}
     PlayerCache.insert(updated_player)
 
-    broadcast!(socket, "player_moved", payload)
+    broadcast!(socket, "player_updated", payload)
     {:noreply, socket}
   end
 
@@ -93,13 +93,13 @@ defmodule GalleryWeb.GalleryChannel do
     {:noreply, socket}
   end
 
-  def handle_out("player_moved", %{"id" => id}, %{assigns: %{player_id: player_id}} = socket)
+  def handle_out("player_updated", %{"id" => id}, %{assigns: %{player_id: player_id}} = socket)
       when id == player_id do
     {:noreply, socket}
   end
 
-  def handle_out("player_moved", payload, socket) do
-    push(socket, "player_moved", payload)
+  def handle_out("player_updated", payload, socket) do
+    push(socket, "player_updated", payload)
     {:noreply, socket}
   end
 

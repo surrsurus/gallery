@@ -41,7 +41,7 @@ defmodule GalleryWeb.GalleryChannelTest do
         "rot" => %{"x" => 0, "y" => 0, "z" => 0}
       })
 
-      assert_broadcast "player_moved", %{
+      assert_broadcast "player_updated", %{
         "id" => @id,
         "pos" => %{"x" => 0, "y" => 0, "z" => 0},
         "rot" => %{"x" => 0, "y" => 0, "z" => 0}
