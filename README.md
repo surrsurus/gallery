@@ -15,8 +15,8 @@ Each player's web browser connects to a Phoenix channel via a websocket that wil
 ```mermaid
 sequenceDiagram
     actor You
-    You->>/gallery: Hit endpoint
-    /gallery-)Browser: Initialize Three.JS Scene
+    You->>gallery: Hit endpoint
+    gallery-)Browser: Initialize Three.JS Scene
     Browser-)Gallery Channel: Join channel
     activate Gallery Channel
     Gallery Channel->>Gallery Channel: Create Player
@@ -33,7 +33,7 @@ sequenceDiagram
     deactivate Gallery Channel
     
 
-    Note over /gallery,PlayerCache: Keydown Events
+    Note over gallery,PlayerCache: Keydown Events
     Browser->>Browser: Handle keydown events
     Browser-)Gallery Channel: Update player
     activate Gallery Channel
@@ -42,7 +42,7 @@ sequenceDiagram
     deactivate Gallery Channel
 
 
-    Note over /gallery,PlayerCache: Disconnect
+    Note over gallery,PlayerCache: Disconnect
     Browser-)Gallery Channel: Disconnect
     activate Gallery Channel
     Gallery Channel->>PlayerCache: Delete from cache
